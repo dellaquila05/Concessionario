@@ -1,0 +1,3 @@
+/*
+Qui gestirai le promozioni facendo vedere la differenz dal prezzo originale modificando la grafica.
+ */

@@ -1,0 +1,705 @@
+body {
+    font-family: "Lexend", system-ui;
+    margin: 0;
+    padding: 0;
+    background-color: #101415;
+}
+
+.sidebar-header, .sidebar-footer {
+    position: absolute; /* Questo permette di posizionare l'header e il footer in qualsiasi punto del loro contenitore */
+    width: 100%; /* Questo fa sì che l'header e il footer occupino tutta la larghezza del loro contenitore */
+    z-index: 1; /* Questo fa sì che l'header e il footer si sovrappongano agli altri elementi */
+}
+
+.btn-outline-primary {
+    color: #208caf; /* Colore del testo */
+    border-color: #208caf; /* Colore del bordo */
+}
+
+.btn-outline-primary:hover {
+    color: #fff !important; /* Colore del testo al passaggio del mouse */
+    background-color: #208caf !important; /* Colore di sfondo al passaggio del mouse */
+    border-color: #208caf !important; /* Colore del bordo al passaggio del mouse */
+}
+
+
+.btn-outline-primary:focus, .btn-outline-primary.focus {
+    box-shadow: 0 0 0 0.2rem rgba(128, 68, 197, 0.5); /* Personalizza l'ombra per il focus */
+}
+
+.btn-check:checked + .btn-outline-primary, .btn-check:active + .btn-outline-primary {
+    color: #fff; /* Colore del testo quando è selezionato o attivo */
+    background-color: #208caf; /* Colore di sfondo quando è selezionato o attivo */
+    border-color: #208caf; /* Colore del bordo quando è selezionato o attivo */
+}
+
+
+a,
+a:hover,
+a:focus {
+    color: inherit;
+    transition: all 0.3s;
+}
+
+.navbar-btn {
+    box-shadow: none;
+    outline: none !important;
+    border: none;
+}
+
+/* Sovrascrive il colore di sfondo del modal */
+.modal-content {
+    background-color: #101415 !important; /* Colore di sfondo dei modali */
+}
+
+/* Sovrascrive il colore di sfondo del header del modal */
+.modal-header {
+    background-color: #101415 !important; /* Colore di sfondo dell'header del modal */
+}
+
+/* Sovrascrive il colore di sfondo del body del modal */
+.modal-body {
+    background-color: #101415 !important; /* Colore di sfondo del body del modal */
+}
+
+/* Sovrascrive il colore di sfondo del footer del modal */
+.modal-footer {
+    background-color: #101415 !important; /* Colore di sfondo del footer del modal */
+}
+
+
+.line {
+    width: 100%;
+    height: 0.0625rem;
+    border-bottom: 0.0625rem dashed #ddd;
+    margin: 2.5rem 0;
+}
+
+h1 {
+    font-family: "Lexend Deca", sans-serif;
+    font-size: 4.7em;
+}
+
+h2 {
+    font-family: "Lexend", sans-serif;
+    font-weight: bold;
+}
+
+h3 {
+    font-family: "Lexend", system-ui;
+    font-size: 1.3em;
+}
+
+
+.btn-primary {
+    background-color: #053DEB !important;
+    border: none !important;
+}
+
+.btn-info {
+    background-color: #208caf !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+
+.vl {
+    border-left: 0.350rem solid white;
+    height: 31.25rem;
+}
+
+
+.text-viola {
+    color: #208caf;
+}
+
+
+select {
+    background-color: #333;
+    color: #fff;
+}
+
+.form-label-group.outline select option {
+    background-color: #212529; /* $gray-100 in Bootstrap */
+    color: #e8f7ff; /* $gray-900 in Bootstrap */
+}
+
+.input-space {
+    margin-right: 0.625rem !important;
+}
+
+
+#sidebar {
+    position: relative;
+    background: #101415;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh; /* Aggiunto per far sì che il sidebar occupi l'intera altezza della viewport */
+}
+
+.footer-sidebar {
+    order: 1; /* Aggiunto per far sì che il footer sia sempre alla fine del contenitore flex */
+}
+
+.btn-dark {
+    background-color: transparent;
+    border: none; /* This will remove the border */
+}
+
+
+#sidebar ul.components {
+    padding: 1.25rem 0;
+    height: 85vh;
+    overflow-y: scroll;
+}
+
+
+.container-fluid-accedi {
+    margin-left: 0;
+}
+
+#sidebar ul p {
+    color: #000000;
+    white-space: nowrap; /* Fai in modo che il testo stia in una sola linea */
+    overflow: hidden; /* Nascondi il testo in eccesso */
+    text-overflow: ellipsis; /* Aggiungi i puntini di sospensione se il testo è troppo lungo */
+    margin-left: 0; /* Rimuove il margine sinistro */
+    padding: 0.2rem 0.625rem 0.2rem 0;
+    font-size: 0.9rem
+}
+
+#sidebar ul li a {
+    padding: 0.625rem;
+    font-size: 1.1em;
+    display: block;
+    border-radius: 0.625rem;
+    border: none; /* Rimuove il colore del bordo */
+    margin: 0.625rem; /* Aggiunge un margine su tutti i lati */
+    white-space: nowrap; /* Fai in modo che il testo stia in una sola linea */
+    overflow: hidden; /* Nascondi il testo in eccesso */
+    text-overflow: ellipsis; /* Aggiungi i puntini di sospensione se il testo è troppo lungo */
+    background: #D9D9D9;
+    color: #000;
+}
+
+#sidebar ul li a:hover p {
+    color: #D9D9D9;
+}
+
+#sidebar ul li a:hover {
+    color: #D9D9D9;
+    background: #208caf;
+    border-radius: 0.625rem;
+    border: none;
+    margin: 0.625rem;
+}
+
+#sidebar ul li.active > a,
+a[aria-expanded="true"] {
+    color: #D9D9D9;
+    background: #208caf;
+}
+
+#sidebar ul li.active p {
+    color: #D9D9D9;
+}
+
+a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 1.25rem;
+    transform: translateY(-50%);
+}
+
+
+ul.CTAs {
+    padding: 1.25rem;
+}
+
+ul.CTAs a {
+    text-align: center;
+    font-size: 0.9em !important;
+    display: block;
+    border-radius: 0.3125rem;
+    margin-bottom: 0.3125rem;
+}
+
+a.download {
+    background: #fff;
+    color: #208caf;
+}
+
+a.article,
+a.article:hover {
+    background: #208caf !important;
+    color: #fff !important;
+}
+
+.customForm {
+    position: relative;
+    width: 100%;
+    padding: 1em;
+    z-index: 1000;
+}
+
+.form-group {
+    position: relative;
+}
+
+.message-input {
+    padding-right: 5rem; /* Spazio per il bottone 'Send' */
+    padding-left: 5rem; /* Spazio per il bottone 'File' */
+    z-index: 9;
+}
+
+.file-button {
+    position: absolute;
+    top: 50%;
+    left: 0.625rem;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.file-input {
+    display: none;
+}
+
+.send-button {
+    position: absolute;
+    top: 50%;
+    right: 0.625rem;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+
+.mask-custom {
+    background: #D9D9D9;
+    color: #101415;
+    border-radius: 1em;
+    border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.mask-custom p {
+    color: #101415;
+}
+
+#messaggio {
+    resize: none;
+}
+
+
+.card-full-page {
+    height: calc(100vh - 5.5rem - 3.5rem - 2.5rem);
+    overflow-y: auto;
+    border: 0.0625rem solid gray;
+    border-radius: 0.625rem;
+}
+
+.card-file {
+    background: #D9D9D9;
+    color: #101415;
+}
+
+/* Nascondi la barra di scorrimento per le finestre del browser più larghe */
+@media (min-width: 800px) {
+    body::-webkit-scrollbar {
+        display: none;
+    }
+
+    body {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+}
+
+/* Mostra la barra di scorrimento per le finestre del browser più piccole */
+@media (max-width: 800px) {
+    body::-webkit-scrollbar {
+        display: block;
+    }
+
+    body {
+        -ms-overflow-style: auto; /* IE and Edge */
+        scrollbar-width: auto; /* Firefox */
+    }
+}
+
+::-webkit-scrollbar {
+    width: 1.2rem;
+    border-radius: 1.25rem;
+    background-color: #101415;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 1.25rem;
+    border: 0.375rem solid transparent;
+    background-color: #101415;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #B3B3B3;
+    border-radius: 1.25rem;
+    border: 0.375rem solid transparent;
+    background-clip: content-box;
+    width: 1.2rem;;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    border-radius: 1.25rem;
+    background-color: #D9D9D9;
+    width: 1.5rem;
+}
+
+.btn-circle {
+    width: 2.5rem;
+    height: 2.5rem; /* 30px / 16 */
+    padding: 0.375rem 0; /* 6px / 16 */
+    border-radius: 1.5rem; /* 15px / 16 */
+    text-align: center;
+    font-size: 0.85rem; /* 12px / 16 */
+    line-height: 1.42857;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.btn-circle-nav {
+    width: 3.5rem;
+    height: 3.5rem; /* 30px / 16 */
+    border-radius: 2.0rem; /* 15px / 16 */
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    font-size: 3rem;
+    align-items: center;
+}
+
+.btn-circle-nav .material-symbols-rounded {
+    font-size: 2.0rem;
+}
+
+.btn-dark:disabled {
+    background-color: transparent !important; /* Rimuove lo sfondo */
+    border: none !important; /* Rimuove il bordo */
+}
+
+.form-ricerca {
+    width: 50%; /* Imposta la larghezza al 50% della larghezza del contenitore */
+    margin-left: auto; /* Aggiunge margine automatico a sinistra */
+    margin-right: auto;
+}
+
+.profile-image {
+}
+
+.creator-div {
+    top: -4rem;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    background: #101415;
+}
+
+.name-file-display {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#avatar-container {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.popover-body {
+    font-family: "Lexend", sans-serif;
+}
+
+.upload-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 19.75rem;
+    height: 19.75rem;
+}
+
+.upload-image {
+    width: 19.75rem; /* fill the width of the container */
+    height: 19.75rem; /* fill the height of the container */
+    border-radius: 50%;
+    object-fit: cover; /* to maintain the aspect ratio of the image */
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 1rem;
+    right: 0;
+    opacity: 0;
+    transition: .5s ease;
+    background-color: #000;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.upload-container:hover .overlay {
+    opacity: 0.5;
+}
+
+.upload-icon {
+    color: white;
+    font-size: 50px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+/* Personalizzazione del colore del checkbox */
+.form-check-input:checked {
+    background-color: #208caf !important;
+    border-color: #208caf !important;
+}
+
+/* Stile per il pallino interno dello switch */
+.form-check-input[type='checkbox'][role='switch']::before {
+    content: '';
+    position: absolute;
+    top: 0.125rem;
+    /* Regola questa proprietà per centrare verticalmente il pallino */
+    left: 0.25rem;
+    width: var(--bs-switch-knob-width);
+    height: var(--bs-switch-knob-height);
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+/* Sposta il pallino interno quando lo switch è attivo */
+.form-check-input:checked[type='checkbox'][role='switch']::before {
+    transform: translateX(calc(var(--bs-switch-bg-width) - var(--bs-switch-knob-width) - 0.5rem));
+}
+
+#imgUtenteProfilo {
+    width: 18.75rem;
+    height: 18.75rem;
+    object-fit: cover; /* Mantiene le proporzioni dell'immagine */
+}
+
+.tooltip .tooltip-inner {
+    background-color: #208caf; /* Colore di sfondo del tooltip */
+}
+
+.tooltip.bs-tooltip-top .arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="top"] .arrow::before {
+    border-top-color: #208caf; /* Colore della freccia del tooltip */
+}
+
+.tooltip.bs-tooltip-right .arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="right"] .arrow::before {
+    border-right-color: #208caf;
+}
+
+.tooltip.bs-tooltip-bottom .arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .arrow::before {
+    border-bottom-color: #208caf;
+}
+
+.tooltip.bs-tooltip-left .arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="left"] .arrow::before {
+    border-left-color: #208caf;
+}
+
+.tooltip .tooltip-inner {
+    color: #ffffff; /* Colore del testo del tooltip */
+    font-family: "Lexend", sans-serif; /* Font del tooltip */
+}
+
+#spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Rimuove il bordo quando il pulsante è disabilitato */
+#nextMessage:disabled, #previousMessage:disabled {
+    border: none;
+}
+
+/* Rimuove il bordo quando il pulsante viene cliccato */
+#nextMessage:active, #previousMessage:active {
+    outline: none;
+}
+
+.highlight {
+    background-color: #208caf; /* Viola */
+    color: white; /* Testo bianco */
+}
+
+.offcanvas {
+    background-color: rgba(0, 0, 0, 0.5); /* Imposta la trasparenza */
+    backdrop-filter: blur(10px); /* Applica l'effetto di sfocatura allo sfondo */
+    --bs-offcanvas-width: 100vh;
+}
+
+.formLogin {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #ffffff;
+    padding: 30px;
+    width: 450px;
+    border-radius: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+::placeholder {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.formLogin button {
+    align-self: flex-end;
+}
+
+.flex-column > label {
+    color: #151717;
+    font-weight: 600;
+}
+
+.inputForm {
+    border: 1.5px solid #ecedec;
+    border-radius: 10px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    transition: 0.2s ease-in-out;
+}
+
+.input {
+    margin-left: 10px;
+    border-radius: 10px;
+    border: none;
+    width: 85%;
+    height: 100%;
+}
+
+.input:focus {
+    outline: none;
+}
+
+.inputForm:focus-within {
+    border: 1.5px solid #2d79f3;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.flex-row > div > label {
+    font-size: 14px;
+    color: black;
+    font-weight: 400;
+}
+
+.span {
+    font-size: 14px;
+    margin-left: 5px;
+    color: #2d79f3;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.button-submit {
+    margin: 20px 0 10px 0;
+    background-color: #151717;
+    border: none;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 10px;
+    height: 50px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.button-submit:hover {
+    background-color: #252727;
+}
+
+.p {
+    text-align: center;
+    color: black;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.btn-login {
+    margin-top: 10px;
+    width: 100%;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    gap: 10px;
+    border: 1px solid #ededef;
+    background-color: white;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.btn:hover {
+    border: 1px solid #2d79f3;;
+}
+
+.btn-check:checked + .btn {
+    border-color: #2d79f3;
+    box-shadow: 0 0 10px rgba(45, 121, 243, 0.5);
+}
+
+#change {
+    user-select: none; /* Impedisce l'evidenziazione del testo */
+    cursor: pointer; /* Cambia il cursore a una mano quando passi sopra */
+}
+
+.card {
+    background-color: #212121;
+    box-shadow: 15px 15px 30px #191919,
+    -15px -15px 30px #292929;
+    transition: border-radius cubic-bezier(0.075, 0.82, 0.165, 1) 1s,
+    transform cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
+}
+
+.card:hover {
+    border-bottom-right-radius: 50px;
+    border-top-left-radius: 50px;
+    transform: scale(1.05);
+}
+
+.card:hover > img  {
+    border-bottom-right-radius: 50px;
+    border-top-left-radius: 50px;
+    transform: scale(1.05);
+}
