@@ -1,6 +1,7 @@
 /*
 Questa pagina avrà di sicuro le get di tutte le auto, le render delle stesse e farà in modo che cliccando sopra un auto sia gestito il click
 */
+/*
 const vetrina = document.getElementById("vetrina");
 let url = 'http://localhost/api.php/getAuto';
 let auto = [];
@@ -52,3 +53,4 @@ function renderAuto(data) {
 
 
 }
+*/

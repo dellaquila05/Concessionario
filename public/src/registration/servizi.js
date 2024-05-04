@@ -1,8 +1,7 @@
-let url = 'http://localhost/api.php/registrazione';
 
 export const registraUtente = async (username, password, email) => {
     try {
-        const response = await fetch(url, {
+        const response = await fetch("/registrazione", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -8,26 +8,23 @@ const password = document.getElementById("password");
 const passwordConfirm = document.getElementById("confpass");
 const buttonRegister = document.getElementById("registra");
 
-
 buttonRegister.onclick = () => {
-    let user = username.value;
-    let pass = password.value;
-    let confPass = passwordConfirm.value;
-    if (user != "" && pass != "" && confPass != "") {
-        if (confPass === pass) {
-            if (user.length > 6 && pass.length > 6) {
-                registraUtente(user, pass).catch(error => {
-                    console.error(error);
-                });
-            } else {
-                alert("Input troppo corti.");
-            }
-        } else {
-            alert("Le password non corrisponono.")
-        }
-
+  let user = username.value;
+  let pass = password.value;
+  let confPass = passwordConfirm.value;
+  if (user != "" && pass != "" && confPass != "") {
+    if (confPass === pass) {
+      if (user.length > 6 && pass.length > 6) {
+        registraAdmin(user, pass).catch((error) => {
+          console.error(error);
+        });
+      } else {
+        alert("Input troppo corti.");
+      }
     } else {
-        alert("è richiesto compilare tutti i campi.");
+      alert("Le password non corrisponono.");
     }
+  } else {
+    alert("è richiesto compilare tutti i campi.");
+  }
 };
-

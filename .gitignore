@@ -1,3 +1,6 @@
+conf.json
+configSuperadmin.json
+
 # Logs
 logs
 *.log
