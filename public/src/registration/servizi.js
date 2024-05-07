@@ -1,5 +1,5 @@
 
-export const registraUtente = async (username, password, email) => {
+export const registra = async (username, password, email) => {
     try {
         const response = await fetch("/registrazione", {
             method: 'POST',
@@ -7,10 +7,10 @@ export const registraUtente = async (username, password, email) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                ruolo: "utente",
                 username: username,
                 password: password,
-                mail: email
+                mail: email,
+                admin: "true"
             }),
         });
         if (!response.ok) {

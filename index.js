@@ -6,7 +6,6 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const { Server } = require("socket.io");
 const conf = JSON.parse(fs.readFileSync("./conf.json"));
-const crypto = require("crypto");
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const conn = mysql.createConnection(conf);
@@ -19,18 +18,13 @@ app.use(
   }),
 );
 app.use("/", express.static(path.join(__dirname, "public")));
-server.listen("3001", () => {
-  console.log("server running on port: 3001");
-});
+
 
 app.post("/registrazione", function (req, res) {
   let requestData = req.body;
-
   let ruolo = requestData.ruolo;
-  let tabella = ruolo == "admin" ? "admin" : "utente";
-
-  let query = "SELECT * FROM ?? WHERE username = ?";
-  let inserts = [tabella, requestData.username];
+  let query = "SELECT * FROM utenteTpsi WHERE username = ?";
+  let inserts = [ requestData.username];
   let sql = mysql.format(query, inserts);
 
   conn.query(sql, function (errore, risultati) {
@@ -43,25 +37,23 @@ app.post("/registrazione", function (req, res) {
     } else {
       bcrypt.hash(requestData.password, 10, function (err, hash) {
         let query_insert =
-          "INSERT INTO ?? (username, pass, mail) VALUES (?, ?, ?)";
+          "INSERT INTO utenteTpsi (username, pass, mail) VALUES (?, ?, ?,?)";
         let inserts_insert = [
-          tabella,
           requestData.username,
           hash,
           requestData.mail,
+          requestData.admin
         ];
         let sql_insert = mysql.format(query_insert, inserts_insert);
 
         conn.query(sql_insert, function (errore, risultati) {
           if (errore) {
             res.json({
-              ["registra" + ruolo.charAt(0).toUpperCase() + ruolo.slice(1)]:
-                false,
+              result : ["registra" +   false]
             });
           } else {
             res.json({
-              ["registra" + ruolo.charAt(0).toUpperCase() + ruolo.slice(1)]:
-                true,
+              result : ["registra" +   true]
             });
           }
         });
@@ -71,11 +63,11 @@ app.post("/registrazione", function (req, res) {
 });
 
 app.post("/login", async (req, res) => {
-  const { username, password, ruolo } = req.body;
+  const { username, password } = req.body;
 
-  if (ruolo === "admin") {
+
     conn.query(
-      "SELECT * FROM admin WHERE username = ?",
+      "SELECT * FROM utenteTpsi WHERE username = ?",
       [username],
       async (error, results) => {
         if (error) throw error;
@@ -84,36 +76,19 @@ app.post("/login", async (req, res) => {
           const comparison = await bcrypt.compare(password, results[0].pass);
 
           if (comparison) {
-            res.json({ loginAdmin: true });
-          } else {
-            res.json({ loginAdmin: false });
+            // Controlla se l'utente è un admin
+            if (results[0].admin) {
+              res.json({ loginAdmin: true });
+            } else {
+              res.json({ loginUtente: true });
+            }
           }
         } else {
-          res.json({ loginAdmin: false });
+          res.json({ loginUtente: false , loginAdmin : false});
         }
       },
     );
-  } else if (ruolo === "utente") {
-    conn.query(
-      "SELECT * FROM utente WHERE username = ?",
-      [username],
-      async (error, results) => {
-        if (error) throw error;
-
-        if (results.length > 0) {
-          const comparison = await bcrypt.compare(password, results[0].pass);
-
-          if (comparison) {
-            res.json({ loginUtente: true });
-          } else {
-            res.json({ loginUtente: false });
-          }
-        } else {
-          res.json({ loginUtente: false });
-        }
-      },
-    );
-  }
+  
 });
 
 // Metodo per eliminare un'auto
@@ -241,7 +216,6 @@ app.delete("/deletePromo", (req, res) => {
 
 // Funzione per ottenere l'immagine in base64
 function getBase64Image(path) {
-  const fs = require("fs");
   if (fs.existsSync(path)) {
     const imageData = fs.readFileSync(path);
     return Buffer.from(imageData).toString("base64");
