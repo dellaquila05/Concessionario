@@ -19,6 +19,54 @@ app.use(
 );
 app.use("/", express.static(path.join(__dirname, "public")));
 
+function salvaImg(req) {
+  // Controlla se i file sono stati caricati
+  if (req.files && req.files.image) {
+      const files = req.files.image;
+      const file_path = [];
+      for (let i = 0; i < files.name.length; i++) {
+          const file_name = files.name[i];
+          const file_tmp = files.tmp_name[i];
+          const file_ext = path.extname(file_name).toLowerCase();
+          
+          // Genera un nome di file univoco
+          const unique_file_name = `${Date.now()}_${Math.floor(Math.random() * 1000)}${file_ext}`;
+          
+          // Definisci la nuova posizione del file
+          const new_location = path.join(__dirname, '..', 'immagini', 'uploads', unique_file_name);
+          
+          // Sposta il file caricato alla nuova posizione
+          fs.renameSync(file_tmp, new_location);
+          
+          // Salva il percorso del file in una variabile
+          file_path.push(new_location);
+      }
+      return file_path;
+  } else {
+      return [];
+  }
+}
+
+app.post('/upload', (req, res) => {
+  // Leggi il corpo della richiesta
+  const requestBody = req.body;
+  // Preparazione della query SQL
+  const idMacchina = requestBody.idMacchina;
+  const imgSaved = salvaImg(req);
+  for (let i = 0; i < imgSaved.length; i++) {
+      const path = imgSaved[i];
+      // Esecuzione della query
+      conn.query("INSERT INTO immagine(path, idMacchina) VALUES(?, ?)", [path, idMacchina], (err, result) => {
+          if (err) {
+              // Errore durante l'esecuzione
+              res.json({ result: false });
+          } else {
+              // Successo: l'esecuzione è andata a buon fine
+              res.json({ result: true });
+          }
+      });
+  }
+});
 
 app.post("/registrazione", function (req, res) {
   let requestData = req.body;
@@ -261,20 +309,31 @@ app.get("/modello", (req, res) => {
   );
 });
 
-// Metodo per ottenere le macchine
 app.get("/macchina", (req, res) => {
-  conn.query(
-    "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca",
-    (err, result) => {
-      if (err) throw err;
-      const data = [];
-      for (let i = 0; i < result.length; i++) {
-        data.push(result[i]);
-      }
-      res.json({ result: data });
-    },
-  );
+
+  let sql = "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca";
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+    let data = [];
+    result.forEach((row) => {
+      let sqlImg = "SELECT * FROM immagine WHERE idMacchina = ?";
+      conn.query(sqlImg, [row.idMacchina], (err, resultImg) => {
+        if (err) throw err;
+        let arrayImg = [];
+        resultImg.forEach((rowImg) => {
+          let path = rowImg.path;
+          let base64Image = getBase64Image(path);
+          arrayImg.push(base64Image);
+        });
+        row.immagini = arrayImg;
+        data.push(row);
+      });
+    });
+    conn.end();
+    res.json({ "result": data });
+  });
 });
+
 
 // Metodo per ottenere le transazioni
 app.get("/transazione", (req, res) => {
@@ -433,6 +492,95 @@ app.post("/newMessage", (req, res) => {
   );
 });
 
+
+
+app.post('/postPrelazione', (req, res) => {
+  let idUtente = req.body.idUtente;
+  let stato = req.body.stato;
+  let idMacchina = req.body.idMacchina;
+  let data = new Date().toISOString().slice(0, 10);
+  let query = `INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES('${idUtente}','${idMacchina}','${data}','${stato}');`;
+  conn.query(query, (err, result) => {
+    if (err) {
+      res.send({ result: false });
+    } else {
+      res.send({ result: true });
+    }
+  });
+});
+
+app.post('/postPreferiti', (req, res) => {
+  let idMacchina = req.body.idMacchina;
+  let idUtente = req.body.idUtente;
+  let query = `INSERT INTO preferiti(idUtente,idMacchina) VALUES('${idUtente}','${idMacchina}');`;
+  conn.query(query, (err, result) => {
+    if (err) {
+      res.send({ result: false });
+    } else {
+      res.send({ result: true });
+    }
+  });
+});
+
+app.post('/postPromo', (req, res) => {
+  let nome = req.body.nome;
+  let idMacchina = req.body.idMacchina;
+  let descrizione = req.body.descrizione;
+  let query = `INSERT INTO sconto(nome,descrizione,idMacchina) VALUES('${nome}','${descrizione}','${idMacchina}');`;
+  conn.query(query, (err, result) => {
+    if (err) {
+      res.send({ result: false });
+    } else {
+      res.send({ result: true });
+    }
+  });
+});
+
+app.post('/postModello', (req, res) => {
+  let nome = req.body.nome;
+  let idMarca = req.body.idMarca;
+  let query = `INSERT INTO modello(nome,idMarca) VALUES('${nome}','${idMarca}');`;
+  conn.query(query, (err, result) => {
+    if (err) {
+      res.send({ result: false });
+    } else {
+      res.send({ result: true });
+    }
+  });
+});
+
+app.post('/postMarca', (req, res) => {
+  let nome = req.body.nome;
+  let query = `INSERT INTO marca(nome) VALUES('${nome}');`;
+  conn.query(query, (err, result) => {
+    if (err) {
+      res.send({ result: false });
+    } else {
+      res.send({ result: true });
+    }
+  });
+});
+
+app.post('/postAuto', (req, res) => {
+  let carburante = req.body.carburante;
+  let descrizione = req.body.descrizione;
+  let condizione = req.body.condizione;
+  let cambio = req.body.cambio;
+  let allestimento = req.body.allestimento;
+  let anno = req.body.anno;
+  let disponibilità = req.body.disponibilità;
+  let km = req.body.km;
+  let prezzo = req.body.prezzo;
+  let idModello = req.body.idModello;
+  let query = `INSERT INTO macchina(carburante,descrizione,condizione,cambio,allestimento,anno,disponibilità,KM,prezzo,idModello) VALUES('${carburante}','${descrizione}','${condizione}','${cambio}','${allestimento}','${anno}','${disponibilità}','${km}','${prezzo}','${idModello}');`;
+  conn.query(query, (err, result) => {
+    if (err) {
+      res.send({ result: false });
+    } else {
+      res.send({ result: true });
+    }
+  });
+});
 
 const server = http.createServer(app);
 server.listen(3000, () => {
