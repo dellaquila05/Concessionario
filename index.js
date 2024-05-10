@@ -9,8 +9,8 @@ const conf = JSON.parse(fs.readFileSync("./conf.json"));
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const conn = mysql.createConnection(conf);
-const server = http.createServer(app);
-const io = new Server(server);
+
+//const io = new Server(server);
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
@@ -363,10 +363,8 @@ app.get("/autousate", (req, res) => {
 });
 // Metodo per ottenere l'elenco delle  chat di un admin
 app.post("/chatAdmin", (req, res) => {
-  const username = req.body.username;
   conn.query(
-    "SELECT Chat_ID FROM Admin_Chat WHERE username = ?",
-    [username],
+    "SELECT c.ID,u.username FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente",
     (err, result) => {
       if (err) throw err;
       res.json({ result });
@@ -391,7 +389,7 @@ app.post("/messaggi", (req, res) => {
 app.post("/chatUtente", (req, res) => {
   const username = req.body.username;
   conn.query(
-    "SELECT ID FROM Chat WHERE utenteUsername = ?",
+    "SELECT c.ID FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente WHERE u.username = ?",
     [username],
     (err, result) => {
       if (err) throw err;
@@ -404,26 +402,13 @@ app.post("/chatUtente", (req, res) => {
 app.post("/newChat", (req, res) => {
   const username = req.body.username;
   conn.query(
-    "INSERT INTO Chat(usernameUtente) values(?)",
+    "SELECT id FROM utenteTpsi  WHERE username = ?",
     [username],
     (err, result) => {
       if (err) throw err;
-      conn.query(
-        "SELECT ID FROM Chat WHERE usernameUtente = ?",
-        [username],
-        (err, resultChat) => {
-          let chatId = resultChat[0].ID;
-          if (err) throw err;
-          conn.query("SELECT username FROM admin", (err, adminRow) => {
-            if (err) throw err;
-            adminRow.forEach((admin) => {
-              conn.query(
-                "INSERT INTO Admin_Chat(Admin_Username, Chat_ID) values(?,?)",
-                [admin.username, chatId],
-              );
-            });
-          });
-        },
+      conn.query(       
+    "INSERT INTO Chat(idUtente) values(?)",
+        [result[0].id],
       );
       res.json({ result });
     },
@@ -446,4 +431,10 @@ app.post("/newMessage", (req, res) => {
       res.json({ result });
     },
   );
+});
+
+
+const server = http.createServer(app);
+server.listen(3000, () => {
+  console.log("- server running");
 });
