@@ -8,7 +8,7 @@ const { Server } = require("socket.io");
 const conf = JSON.parse(fs.readFileSync("./conf.json"));
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
-const conn = mysql.createConnection(conf);
+const conn =   mysql.createConnection(conf);
 
 //const io = new Server(server);
 app.use(bodyParser.json());
@@ -51,7 +51,7 @@ function salvaImg(req) {
 app.post("/login", async (req, res) => {
   const  username   = req.body.username ;
   const  password  = req.body.password;
-    conn.query(
+   await conn.query(
       "SELECT * FROM utenteTpsi WHERE username = ?",
       [username],
       async (error, results) => {
@@ -438,9 +438,8 @@ app.post("/utente", async (req, res) => {
 
 // Metodo per ottenere le macchine
 app.get("/macchina", async (req, res) => {
-  let sql = "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca";
   try {
-    const result = await conn.query(sql);
+    const result = await conn.query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca");
     let data = [];
     for (let row of result) {
       let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
