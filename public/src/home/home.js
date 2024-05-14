@@ -1,6 +1,3 @@
-/*
-Questa pagina avrà di sicuro le get di tutte le auto, le render delle stesse e farà in modo che cliccando sopra un auto sia gestito il click
-*/
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");

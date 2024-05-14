@@ -77,33 +77,8 @@ app.post("/login", async (req, res) => {
 });
 
 
-// Metodo per eliminare un admin
-app.delete("/deleteAdmin", async (req, res) => {
-  const requestBody = req.body;
-  const stmt = conn.prepare("DELETE FROM admin WHERE username = ?");
-  stmt.bind_param("s", requestBody.username);
-  try {
-    await stmt.execute();
-    res.json({ result: true });
-  } catch (err) {
-    res.json({ result: false });
-  }
-  conn.close();
-});
 
-// Metodo per eliminare una promozione
-app.delete("/deletePromo", async (req, res) => {
-  const requestBody = req.body;
-  const stmt = conn.prepare("DELETE FROM sconto WHERE idSconto = ?");
-  stmt.bind_param("s", requestBody.idSconto);
-  try {
-    await stmt.execute();
-    res.json({ result: true });
-  } catch (err) {
-    res.json({ result: false });
-  }
-  conn.close();
-});
+
 
 app.post('/upload', async (req, res) => {
   const requestBody = req.body;
@@ -113,9 +88,9 @@ app.post('/upload', async (req, res) => {
     const path = imgSaved[i];
     try {
       const result = await conn.query("INSERT INTO immagine(path, idMacchina) VALUES(?, ?)", [path, idMacchina]);
-      res.json({ result: true });
+      res.json({ "result": true });
     } catch (err) {
-      res.json({ result: false });
+      res.json({ "result": false });
     }
   }
 });
@@ -131,12 +106,12 @@ app.post("/registrazione", async function (req, res) {
     const risultati = await conn.query(sql);
     if (risultati.length) {
       res.json({
-        ["registra" + ruolo.charAt(0).toUpperCase() + ruolo.slice(1)]: false,
+        ["registra" + ruolo]: false,
       });
     } else {
       bcrypt.hash(requestData.password, 10, async function (err, hash) {
         let query_insert =
-          "INSERT INTO utenteTpsi (username, pass, mail) VALUES (?, ?, ?,?)";
+          "INSERT INTO utenteTpsi (username, pass, mail,admin) VALUES (?, ?, ?,?)";
         let inserts_insert = [
           requestData.username,
           hash,
@@ -169,9 +144,9 @@ app.delete("/deleteAuto", async (req, res) => {
   stmt.bind_param("s", requestBody.idMacchina);
   try {
     await stmt.execute();
-    res.json({ result: true });
+    res.json({ "result": true });
   } catch (err) {
-    res.json({ result: false });
+    res.json({ "result": false });
   }
   conn.close();
 });
@@ -183,9 +158,9 @@ app.delete("/deleteModello", async (req, res) => {
   stmt.bind_param("s", requestBody.idModello);
   try {
     await stmt.execute();
-    res.json({ result: true });
+    res.json({ "result": true });
   } catch (err) {
-    res.json({ result: false });
+    res.json({ "result": false });
   }
   conn.close();
 });
@@ -197,9 +172,9 @@ app.delete("/deleteMarca", async (req, res) => {
   stmt.bind_param("s", requestBody.idMarca);
   try {
     await stmt.execute();
-    res.json({ result: true });
+    res.json({ "result": true });
   } catch (err) {
-    res.json({ result: false });
+    res.json({ "result": false });
   }
   conn.close();
 });
@@ -213,9 +188,9 @@ app.delete("/deleteTransazione", async (req, res) => {
   stmt.bind_param("ss", requestBody.idMacchina, requestBody.idUtente);
   try {
     await stmt.execute();
-    res.json({ result: true });
+    res.json({ "result": true });
   } catch (err) {
-    res.json({ result: false });
+    res.json({ "result": false });
   }
   conn.close();
 });
@@ -229,9 +204,9 @@ app.delete("/deleteImmagini", async (req, res) => {
   stmt.bind_param("ss", requestBody.idMacchina, requestBody.idImmagine);
   try {
     await stmt.execute();
-    res.json({ result: true });
+    res.json({ "result": true });
   } catch (err) {
-    res.json({ result: false });
+    res.json({ "result": false });
   }
   conn.close();
 });
@@ -245,9 +220,9 @@ app.delete("/deletePreferiti", async (req, res) => {
   stmt.bind_param("ss", requestBody.idMacchina, requestBody.idUtente);
   try {
     await stmt.execute();
-    res.json({ result: true });
+    res.json({ "result": true });
   } catch (err) {
-    res.json({ result: false });
+    res.json({ "result": false });
   }
   conn.close();
 });
@@ -259,9 +234,9 @@ app.delete("/deleteUtente", async (req, res) => {
   stmt.bind_param("s", requestBody.username);
   try {
     await stmt.execute();
-    res.json({ result: true });
+    res.json({ "result": true });
   } catch (err) {
-    res.json({ result: false });
+    res.json({ "result": false });
   }
   conn.close();
 });
@@ -277,30 +252,6 @@ function getBase64Image(path) {
   return null;
 }
 
-// Metodo per ottenere le macchine
-app.get("/macchina", async (req, res) => {
-  let sql = "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca";
-  try {
-    const result = await conn.query(sql);
-    let data = [];
-    for (let row of result) {
-      let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
-      let arrayImg = [];
-      for (let rowImg of resultImg) {
-        let path = rowImg.path;
-        let base64Image = getBase64Image(path);
-        arrayImg.push(base64Image);
-      }
-      row.immagini = arrayImg;
-      data.push(row);
-    }
-    conn.end();
-    res.json({ "result": data });
-  } catch (err) {
-    throw err;
-  }
-});
-
 // Metodo per creare una nuova prelazione
 app.post('/postPrelazione', async (req, res) => {
   let idUtente = req.body.idUtente;
@@ -310,9 +261,9 @@ app.post('/postPrelazione', async (req, res) => {
   let query = `INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES('${idUtente}','${idMacchina}','${data}','${stato}');`;
   try {
     const result = await conn.query(query);
-    res.send({ result: true });
+    res.send({ "result": true });
   } catch (err) {
-    res.send({ result: false });
+    res.send({ "result": false });
   }
 });
 
@@ -323,25 +274,12 @@ app.post('/postPreferiti', async (req, res) => {
   let query = `INSERT INTO preferiti(idUtente,idMacchina) VALUES('${idUtente}','${idMacchina}');`;
   try {
     const result = await conn.query(query);
-    res.send({ result: true });
+    res.send({ "result": true });
   } catch (err) {
-    res.send({ result: false });
+    res.send({ "result": false });
   }
 });
 
-// Metodo per creare una nuova promozione
-app.post('/postPromo', async (req, res) => {
-  let nome = req.body.nome;
-  let idMacchina = req.body.idMacchina;
-  let descrizione = req.body.descrizione;
-  let query = `INSERT INTO sconto(nome,descrizione,idMacchina) VALUES('${nome}','${descrizione}','${idMacchina}');`;
-  try {
-    const result = await conn.query(query);
-    res.send({ result: true });
-  } catch (err) {
-    res.send({ result: false });
-  }
-});
 
 // Metodo per creare un nuovo modello
 app.post('/postModello', async (req, res) => {
@@ -350,9 +288,9 @@ app.post('/postModello', async (req, res) => {
   let query = `INSERT INTO modello(nome,idMarca) VALUES('${nome}','${idMarca}');`;
   try {
     const result = await conn.query(query);
-    res.send({ result: true });
+    res.send({ "result": true });
   } catch (err) {
-    res.send({ result: false });
+    res.send({ "result": false });
   }
 });
 
@@ -362,9 +300,9 @@ app.post('/postMarca', async (req, res) => {
   let query = `INSERT INTO marca(nome) VALUES('${nome}');`;
   try {
     const result = await conn.query(query);
-    res.send({ result: true });
+    res.send({ "result": true });
   } catch (err) {
-    res.send({ result: false });
+    res.send({ "result": false });
   }
 });
 
@@ -403,10 +341,10 @@ app.post('/postAuto', async (req, res) => {
       stmt.bind_param("si", filename, idMacchina);
       await stmt.execute();
     }
-    res.send({ result: true });
+    res.send({ "result": true });
   } catch (err) {
     // Errore durante l'esecuzione
-    res.send({ result: false, message: "Failed to execute the SQL statement" });
+    res.send({ "result": false, message: "Failed to execute the SQL statement" });
   }
   // Chiusura della connessione
   conn.close();
@@ -424,9 +362,9 @@ app.post("/immagine", async (req, res) => {
     if (result.length > 0) {
       const path = result[0].path;
       const base64Image = getBase64Image(path);
-      res.json({ result: base64Image });
+      res.json({ "result": base64Image });
     } else {
-      res.json({ result: null });
+      res.json({ "result": null });
     }
   } catch (err) {
     throw err;
@@ -484,7 +422,7 @@ app.post("/utente", async (req, res) => {
   const username = req.body.username;
   try {
     const result = await conn.query(
-      "SELECT * FROM utente WHERE username = ?",
+      "SELECT * FROM utenteTpsi WHERE username = ?",
       [username]
     );
     res.json({ result });
@@ -493,25 +431,30 @@ app.post("/utente", async (req, res) => {
   }
 });
 
-// Metodo per ottenere un admin
-app.post("/admin", async (req, res) => {
-  const username = req.body.username;
-  try {
-    const result = await conn.query(
-      "SELECT * FROM admin WHERE username = ?",
-      [username]
-    );
-    res.json({ result });
-  } catch (err) {
-    throw err;
-  }
-});
 
-// Metodo per ottenere le promozioni
-app.get("/promo", async (req, res) => {
+
+
+
+
+// Metodo per ottenere le macchine
+app.get("/macchina", async (req, res) => {
+  let sql = "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca";
   try {
-    const result = await conn.query("SELECT * FROM sconto");
-    res.json({ result });
+    const result = await conn.query(sql);
+    let data = [];
+    for (let row of result) {
+      let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
+      let arrayImg = [];
+      for (let rowImg of resultImg) {
+        let path = rowImg.path;
+        let base64Image = getBase64Image(path);
+        arrayImg.push(base64Image);
+      }
+      row.immagini = arrayImg;
+      data.push(row);
+    }
+    conn.end();
+    res.json({ "result": data });
   } catch (err) {
     throw err;
   }
@@ -523,11 +466,20 @@ app.get("/autonuove", async (req, res) => {
     const result = await conn.query(
       "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Nuovo'"
     );
-    const data = [];
-    for (let i = 0; i < result.length; i++) {
-      data.push(result[i]);
+    let data = [];
+    for (let row of result) {
+      let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
+      let arrayImg = [];
+      for (let rowImg of resultImg) {
+        let path = rowImg.path;
+        let base64Image = getBase64Image(path);
+        arrayImg.push(base64Image);
+      }
+      row.immagini = arrayImg;
+      data.push(row);
     }
-    res.json({ result: data });
+    conn.end();
+    res.json({ "result": data });
   } catch (err) {
     throw err;
   }
@@ -539,11 +491,20 @@ app.get("/autousate", async (req, res) => {
     const result = await conn.query(
       "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Usato'"
     );
-    const data = [];
-    for (let i = 0; i < result.length; i++) {
-      data.push(result[i]);
+    let data = [];
+    for (let row of result) {
+      let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
+      let arrayImg = [];
+      for (let rowImg of resultImg) {
+        let path = rowImg.path;
+        let base64Image = getBase64Image(path);
+        arrayImg.push(base64Image);
+      }
+      row.immagini = arrayImg;
+      data.push(row);
     }
-    res.json({ result: data });
+    conn.end();
+    res.json({ "result": data });
   } catch (err) {
     throw err;
   }
@@ -630,6 +591,6 @@ app.post("/newMessage", async (req, res) => {
 
 
 const server = http.createServer(app);
-server.listen(3000, () => {
+server.listen(3001, () => {
   console.log("- server running");
 });

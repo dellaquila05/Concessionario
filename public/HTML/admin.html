@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Admin</title>
+    <link href="../immagini/logo.png" rel="icon" />
+
     <link
             href="https://fonts.googleapis.com/css?family=Lexend"
             rel="stylesheet"
@@ -50,41 +52,148 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="home.html">Home</a>
+                    <button type="button" id="buttonModal" class="nav-link">Crea nuova auto</button>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="newCar.html">Nuove</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="oldCar.html">Usate</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="cart.html">Preferiti</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="preempted.html">Prelazionate</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="contacts.html">Contacts</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="promo.html">Promo</a>
+                    <a class="nav-link" href="#">Autorizza transazione</a>
                 </li>
             </ul>
             <div class="d-flex">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registration.html">Registrati</a>
+                        <a class="nav-link" href="./home.html">Log out</a>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </nav>
-<a href="https://www.instagram.com/your_username/" target="_blank"
+
+<!-- Modal -->
+<div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Aggiungi Auto</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Marca -->
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="newModello" class="form-label">Nuova Modello</label>
+                                    <div class="row">
+                                        <div class="col">
+                                            <select class="form-select" id="newModelloMarca">
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" class="form-control" id="newModello"
+                                                   placeholder="crea un nuovo modello">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-primary btn-sm mt-4" id="buttonNewModello">
+                                        Aggiungi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="newMarca" class="form-label">Nuova Marca</label>
+                                    <input type="text" class="form-control" id="newMarca"
+                                           placeholder="crea una nuova marca">
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-primary btn-sm mt-4" id="buttonNewMarca">
+                                        Aggiungi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modello -->
+                <div class="mb-3">
+                    <label for="selectModello" class="form-label">Modello</label>
+                    <select class="form-select" id="selectModello">
+                    </select>
+                </div>
+                <!-- Carburante -->
+                <div class="mb-3">
+                    <label for="carburante" class="form-label">Carburante</label>
+                    <input type="text" class="form-control" id="carburante">
+                </div>
+                <!-- Descrizione -->
+                <div class="mb-3">
+                    <label for="descrizione" class="form-label">Descrizione</label>
+                    <textarea class="form-control" id="descrizione"></textarea>
+                </div>
+                <!-- Condizioni -->
+                <div class="mb-3">
+                    <label for="condizioni" class="form-label">Condizioni</label>
+                    <select class="form-select" id="condizioni">
+                        <option value="condizioni">Condizioni</option>
+                        <option value="usato">Usato</option>
+                        <option value="nuovo">Nuovo</option>
+                    </select>
+                </div>
+                <!-- Cambio -->
+                <div class="mb-3">
+                    <label for="cambio" class="form-label">Cambio</label>
+                    <select class="form-select" id="cambio">
+                        <option value="cambio">Cambio</option>
+                        <option value="manuale">Manuale</option>
+                        <option value="automatico">Automatico</option>
+                    </select>
+                </div>
+                <!-- Allestimento -->
+                <div class="mb-3">
+                    <label for="allestimento" class="form-label">Allestimento</label>
+                    <input type="text" class="form-control" id="allestimento">
+                </div>
+                <!-- Anno -->
+                <div class="mb-3">
+                    <label for="anno" class="form-label">Anno</label>
+                    <input type="date" class="form-control" id="anno">
+                </div>
+                <!-- Disponibilità -->
+                <div class="mb-3">
+                    <label for="disponibilita" class="form-label">Disponibilità</label>
+                    <input type="number" class="form-control" id="disponibilita">
+                </div>
+                <!-- KM -->
+                <div class="mb-3">
+                    <label for="km" class="form-label">KM</label>
+                    <input type="number" class="form-control" id="km">
+                </div>
+                <!-- Prezzo -->
+                <div class="mb-3">
+                    <label for="prezzo" class="form-label">Prezzo</label>
+                    <input type="number" class="form-control" id="prezzo">
+                </div>
+                <!-- Immagini -->
+                <div class="mb-3">
+                    <label for="immagini" class="form-label">Carica immagini (max 5)</label>
+                    <input type="file" class="form-control" id="immagini" name="immagini[]" multiple accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                <button type="button" class="btn btn-primary" id="salva">Pubblica annuncio</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<a target="_blank"
    class="btn btn-info position-fixed top-50 end-0 translate-middle-y btn-lg" data-bs-toggle="offcanvas"
    data-bs-target="#filtriRicercaOffCanvas">
     <i class="bi bi-filter"></i>
@@ -107,76 +216,6 @@
         <p>Try scrolling the rest of the page to see this option in action.</p>
     </div>
 </div>
-
-<section id="vetrina" class="container">
-    <h2 class="text-center mb-4">Auto in vetrina</h2>
-    <div class="row">
-        <div class="col-md-4 mt-3">
-            <div class="card">
-                <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Auto 1</h5>
-                    <p class="card-text">Descrizione dell'auto 1.</p>
-                    <a href="#" class="btn btn-primary">Dettagli</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mt-3">
-            <div class="card">
-                <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Auto 2</h5>
-                    <p class="card-text">Descrizione dell'auto 2.</p>
-                    <a href="#" class="btn btn-primary">Dettagli</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mt-3">
-            <div class="card">
-                <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Auto 3</h5>
-                    <p class="card-text">Descrizione dell'auto 3.</p>
-                    <a href="#" class="btn btn-primary">Dettagli</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <br>
-    <div class="row">
-        <div class="col-md-4 mt-3">
-            <div class="card">
-                <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Auto 4</h5>
-                    <p class="card-text">Descrizione dell'auto 4.</p>
-                    <a href="#" class="btn btn-primary">Dettagli</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mt-3">
-            <div class="card">
-                <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Auto 5</h5>
-                    <p class="card-text">Descrizione dell'auto 5.</p>
-                    <a href="#" class="btn btn-primary">Dettagli</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mt-3">
-            <div class="card">
-                <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Auto 6</h5>
-                    <p class="card-text">Descrizione dell'auto 6.</p>
-                    <a href="#" class="btn btn-primary">Dettagli</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <br>
-</section>
 
 <footer class="bg-dark text-white text-center py-3">
     <div class="container">

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it">
-  <head>
+<html lang="it" data-bs-theme="dark">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacts</title>
+    <title>Contatti</title>
     <link
             href="https://fonts.googleapis.com/css?family=Lexend"
             rel="stylesheet"
@@ -42,8 +42,45 @@
     <link rel="stylesheet" href="./style.css"/>
 </head>
 <body>
-
-<div class="container mt-5">
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#vetrina">
+            <img src="../immagini/logo.png" alt="Logo" width="80">
+        </a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link " href="home.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="newCar.html">Nuove</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="oldCar.html">Usate</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cart.html">Preferiti</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="preempted.html">Prelazionate</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="contacts.html">Contacts</a>
+                </li>
+                 </ul>
+            <div class="d-flex">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="registration.html">Registrati</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav><div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card">
@@ -63,6 +100,7 @@
   </div>
 </div>
 
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script type="module" src="../src/home/home.js"></script>
 </body>
 </html>

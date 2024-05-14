@@ -1,9 +1,10 @@
-/*
-La pagina di registrazione è solo per gli utenti, richiami il servizio e fai la redirect. Per registrare un admin ci saranno due modi: un admin registra un admin, e un super admin (che ha credenziali specifiche) registra gli admin.
- */
-import { postModello, postAuto, postMarca, getMarche, getModello} from "./servizi.js";
 
+import {registraAdmin, postModello, postAuto, postMarca, getMarche, getModello} from "./servizi.js";
 
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+const passwordConfirm = document.getElementById("confpass");
+const buttonRegister = document.getElementById("registra");
 const modal = new bootstrap.Modal("#Modal", {});
 const buttModal = document.getElementById("buttonModal");
 const selectmodello = document.getElementById("selectModello");
