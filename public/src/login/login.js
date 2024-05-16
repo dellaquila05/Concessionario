@@ -8,7 +8,19 @@ const submit = document.getElementById("submit");
 
 
 submit.onclick = async () => {
+  console.log("1");
   await login(user.value,pass.value);
+  console.log(results);
+
+  console.log(results[0]);
+  if(results[0].admin.loginAdmin === true){
+    window.location.href = './admin.html';
+
+  }else if(results[0].admin.loginUtente === true){
+    window.location.href = './home.html';
+    sessionStorage.setItem('username', user.value);
+  }
+ 
 };
 
 // Seleziona l'elemento span e l'input della password

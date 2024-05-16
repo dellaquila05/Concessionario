@@ -8,7 +8,7 @@ const { Server } = require("socket.io");
 const conf = JSON.parse(fs.readFileSync("./conf.json"));
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
-const conn =   mysql.createConnection(conf);
+const conn = mysql.createConnection(conf);
 
 //const io = new Server(server);
 app.use(bodyParser.json());
@@ -22,63 +22,57 @@ app.use("/", express.static(path.join(__dirname, "public")));
 function salvaImg(req) {
   // Controlla se i file sono stati caricati
   if (req.files && req.files.image) {
-      const files = req.files.image;
-      const file_path = [];
-      for (let i = 0; i < files.name.length; i++) {
-          const file_name = files.name[i];
-          const file_tmp = files.tmp_name[i];
-          const file_ext = path.extname(file_name).toLowerCase();
-          
-          // Genera un nome di file univoco
-          const unique_file_name = `${Date.now()}_${Math.floor(Math.random() * 1000)}${file_ext}`;
-          
-          // Definisci la nuova posizione del file
-          const new_location = path.join(__dirname, '..', 'immagini', 'uploads', unique_file_name);
-          
-          // Sposta il file caricato alla nuova posizione
-          fs.renameSync(file_tmp, new_location);
-          
-          // Salva il percorso del file in una variabile
-          file_path.push(new_location);
-      }
-      return file_path;
+    const files = req.files.image;
+    const file_path = [];
+    for (let i = 0; i < files.name.length; i++) {
+      const file_name = files.name[i];
+      const file_tmp = files.tmp_name[i];
+      const file_ext = path.extname(file_name).toLowerCase();
+
+      // Genera un nome di file univoco
+      const unique_file_name = `${Date.now()}_${Math.floor(Math.random() * 1000)}${file_ext}`;
+
+      // Definisci la nuova posizione del file
+      const new_location = path.join(__dirname, '..', 'immagini', 'uploads', unique_file_name);
+
+      // Sposta il file caricato alla nuova posizione
+      fs.renameSync(file_tmp, new_location);
+
+      // Salva il percorso del file in una variabile
+      file_path.push(new_location);
+    }
+    return file_path;
   } else {
-      return [];
+    return [];
   }
 }
 
 
 app.post("/login", async (req, res) => {
-  const  username   = req.body.username ;
-  const  password  = req.body.password;
-   await conn.query(
-      "SELECT * FROM utenteTpsi WHERE username = ?",
-      [username],
-      async (error, results) => {
-        if (error) throw error;
+  const username = req.body.username;
+  const password = req.body.password;
+  const sql = 'SELECT * FROM utenteTpsi WHERE username = ?';
+  const [results] = await conn.promise().query(sql, [username]);
 
-        if (results.length > 0) {
-          const comparison = await bcrypt.compare(password, results[0].pass);
+    if (results.length > 0) {
+      const comparison = await bcrypt.compare(password, results[0].pass);
+      console.log(results);
 
-          if (comparison) {
-            // Controlla se l'utente è un admin
-            if (results[0].admin) {
-              res.json({ loginAdmin: true });
-            } else {
-              res.json({ loginUtente: true });
-            }
-          }
+      if (comparison) {
+        // Controlla se l'utente è un admin
+        console.log(results)
+
+        if (results[0].admin) {
+          res.json({ loginAdmin: true });
         } else {
-          res.json({ loginUtente: false , loginAdmin : false});
+          res.json({ loginUtente: true });
         }
-      },
-    );
-  
+      }
+    } else {
+      res.json({ loginUtente: false, loginAdmin: false });
+    
+  }
 });
-
-
-
-
 
 app.post('/upload', async (req, res) => {
   const requestBody = req.body;
@@ -86,8 +80,9 @@ app.post('/upload', async (req, res) => {
   const imgSaved = salvaImg(req);
   for (let i = 0; i < imgSaved.length; i++) {
     const path = imgSaved[i];
+    let sql = "INSERT INTO immagine(path, idMacchina) VALUES(?, ?)";
     try {
-      const result = await conn.query("INSERT INTO immagine(path, idMacchina) VALUES(?, ?)", [path, idMacchina]);
+      const [risultati] = await conn.promise().query(sql, [path, idMacchina]);
       res.json({ "result": true });
     } catch (err) {
       res.json({ "result": false });
@@ -98,12 +93,9 @@ app.post('/upload', async (req, res) => {
 app.post("/registrazione", async function (req, res) {
   let requestData = req.body;
   let ruolo = requestData.admin;
-  let query = "SELECT * FROM utenteTpsi WHERE username = ?";
-  let inserts = [ requestData.username];
-  let sql = mysql.format(query, inserts);
-
+  let sql = "SELECT * FROM utenteTpsi WHERE username = ?";
   try {
-    const risultati = await conn.query(sql);
+    const [risultati] = await conn.promise().query(sql, [requestData.username]);
     if (risultati.length) {
       res.json({
         ["registra" + ruolo]: false,
@@ -111,23 +103,16 @@ app.post("/registrazione", async function (req, res) {
     } else {
       bcrypt.hash(requestData.password, 10, async function (err, hash) {
         let query_insert =
-          "INSERT INTO utenteTpsi (username, pass, mail,admin) VALUES (?, ?, ?,?)";
-        let inserts_insert = [
-          requestData.username,
-          hash,
-          requestData.mail,
-          requestData.admin
-        ];
-        let sql_insert = mysql.format(query_insert, inserts_insert);
-
+          "INSERT INTO utenteTpsi (username, password, mail,admin) VALUES (?, ?, ?,?)";
         try {
-          const risultati = await conn.query(sql_insert);
+          const [risultati] = await conn.promise().query(query_insert, [requestData.username, hash, requestData.mail, requestData.admin]);
           res.json({
-            result : ["registra" +   true]
+            result: ["registra" + true]
           });
         } catch (errore) {
+          console.log(errore);
           res.json({
-            result : ["registra" +   false]
+            result: ["registra" + false]
           });
         }
       });
@@ -140,10 +125,9 @@ app.post("/registrazione", async function (req, res) {
 // Metodo per eliminare un'auto
 app.delete("/deleteAuto", async (req, res) => {
   const requestBody = req.body;
-  const stmt = conn.prepare("DELETE FROM macchina  WHERE idMacchina = ?");
-  stmt.bind_param("s", requestBody.idMacchina);
+  const sql = "DELETE FROM macchina  WHERE idMacchina = ?";
   try {
-    await stmt.execute();
+    const [result] = await conn.promise().query(sql, [requestBody.idMacchina]);
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
@@ -154,10 +138,9 @@ app.delete("/deleteAuto", async (req, res) => {
 // Metodo per eliminare un modello
 app.delete("/deleteModello", async (req, res) => {
   const requestBody = req.body;
-  const stmt = conn.prepare("DELETE FROM modello  WHERE idModello = ?");
-  stmt.bind_param("s", requestBody.idModello);
+  const sql = "DELETE FROM modello  WHERE idModello = ?";
   try {
-    await stmt.execute();
+    const [result] = await conn.promise().query(sql, [requestBody.idModello]);
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
@@ -168,10 +151,10 @@ app.delete("/deleteModello", async (req, res) => {
 // Metodo per eliminare una marca
 app.delete("/deleteMarca", async (req, res) => {
   const requestBody = req.body;
-  const stmt = conn.prepare("DELETE FROM marca  WHERE idMarca = ?");
-  stmt.bind_param("s", requestBody.idMarca);
+  const sql = "DELETE FROM marca  WHERE idMarca = ?";
+
   try {
-    await stmt.execute();
+    const [result] = await conn.promise().query(sql, [requestBody.idMarca]);
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
@@ -182,12 +165,10 @@ app.delete("/deleteMarca", async (req, res) => {
 // Metodo per eliminare una transazione
 app.delete("/deleteTransazione", async (req, res) => {
   const requestBody = req.body;
-  const stmt = conn.prepare(
-    "DELETE FROM prelazione WHERE idMacchina = ? AND idUtente = ?",
-  );
-  stmt.bind_param("ss", requestBody.idMacchina, requestBody.idUtente);
+  const sql =
+    "DELETE FROM prelazione WHERE idMacchina = ? AND idUtente = ?";
   try {
-    await stmt.execute();
+    const [result] = await conn.promise().query(sql, [requestBody.idMacchina, requestBody.idUtente]);
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
@@ -198,12 +179,9 @@ app.delete("/deleteTransazione", async (req, res) => {
 // Metodo per eliminare un'immagine
 app.delete("/deleteImmagini", async (req, res) => {
   const requestBody = req.body;
-  const stmt = conn.prepare(
-    "DELETE FROM immagine WHERE idMacchina = ? AND idImmagine = ?",
-  );
-  stmt.bind_param("ss", requestBody.idMacchina, requestBody.idImmagine);
+  const sql = 'DELETE FROM immagine WHERE idMacchina = ? AND idImmagine = ?';
   try {
-    await stmt.execute();
+    const [result] = await conn.promise().query(sql, [requestBody.idMacchina, requestBody.idImmagine]);
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
@@ -214,12 +192,9 @@ app.delete("/deleteImmagini", async (req, res) => {
 // Metodo per eliminare un preferito
 app.delete("/deletePreferiti", async (req, res) => {
   const requestBody = req.body;
-  const stmt = conn.prepare(
-    "DELETE FROM preferiti WHERE idMacchina = ? AND idUtente = ?",
-  );
-  stmt.bind_param("ss", requestBody.idMacchina, requestBody.idUtente);
+  const sql = 'DELETE FROM preferiti WHERE idMacchina = ? AND idUtente = ?';
   try {
-    await stmt.execute();
+    const [result] = await conn.promise().query(sql, [requestBody.idMacchina, requestBody.idUtente]);
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
@@ -230,10 +205,12 @@ app.delete("/deletePreferiti", async (req, res) => {
 // Metodo per eliminare un utente
 app.delete("/deleteUtente", async (req, res) => {
   const requestBody = req.body;
-  const stmt = conn.prepare("DELETE FROM utente WHERE username = ?");
-  stmt.bind_param("s", requestBody.username);
+  const username = requestBody.username;
+
+  const sql = 'DELETE FROM utente WHERE username = ?';
   try {
-    await stmt.execute();
+    const [result] = await conn.promise().query(sql, [username]);
+  
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
@@ -258,9 +235,9 @@ app.post('/postPrelazione', async (req, res) => {
   let stato = req.body.stato;
   let idMacchina = req.body.idMacchina;
   let data = new Date().toISOString().slice(0, 10);
-  let query = `INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES('${idUtente}','${idMacchina}','${data}','${stato}');`;
+  const sql = 'INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);';
   try {
-    const result = await conn.query(query);
+    const [result] = await conn.promise().query(sql, [idUtente, idMacchina, data , stato ]);
     res.send({ "result": true });
   } catch (err) {
     res.send({ "result": false });
@@ -271,9 +248,9 @@ app.post('/postPrelazione', async (req, res) => {
 app.post('/postPreferiti', async (req, res) => {
   let idMacchina = req.body.idMacchina;
   let idUtente = req.body.idUtente;
-  let query = `INSERT INTO preferiti(idUtente,idMacchina) VALUES('${idUtente}','${idMacchina}');`;
+  const sql = 'INSERT INTO preferiti(idUtente,idMacchina) VALUES(?,?);`';
   try {
-    const result = await conn.query(query);
+    const [result] = await conn.promise().query(sql, [idUtente, idMacchina]);
     res.send({ "result": true });
   } catch (err) {
     res.send({ "result": false });
@@ -285,9 +262,9 @@ app.post('/postPreferiti', async (req, res) => {
 app.post('/postModello', async (req, res) => {
   let nome = req.body.nome;
   let idMarca = req.body.idMarca;
-  let query = `INSERT INTO modello(nome,idMarca) VALUES('${nome}','${idMarca}');`;
+  let sql = `INSERT INTO modello(nome,idMarca) VALUES(?,?);`;
   try {
-    const result = await conn.query(query);
+    const [result] = await conn.promise().query(sql, [nome, idMarca]);
     res.send({ "result": true });
   } catch (err) {
     res.send({ "result": false });
@@ -297,9 +274,9 @@ app.post('/postModello', async (req, res) => {
 // Metodo per creare una nuova marca
 app.post('/postMarca', async (req, res) => {
   let nome = req.body.nome;
-  let query = `INSERT INTO marca(nome) VALUES('${nome}');`;
+  let sql = `INSERT INTO marca(nome) VALUES(?);`;
   try {
-    const result = await conn.query(query);
+    const [result] = await conn.promise().query(sql, [nome]);
     res.send({ "result": true });
   } catch (err) {
     res.send({ "result": false });
@@ -321,25 +298,23 @@ app.post('/postAuto', async (req, res) => {
   let km = requestData.km;
   let prezzo = requestData.prezzo;
   let idModello = requestData.idModello;
-
-  let stmt = conn.prepare("INSERT INTO macchina(carburante,descrizione,condizione,cambio,allestimento,anno,disponibilità,KM,prezzo,idModello) VALUES(?,?,?,?,?,?,?,?,?,?)");
-  stmt.bind_param("ssssssiiii", carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello);
+  let sql = "INSERT INTO macchina(carburante,descrizione,condizione,cambio,allestimento,anno,disponibilità,KM,prezzo,idModello) VALUES(?,?,?,?,?,?,?,?,?,?)";
   // Esecuzione della query
   try {
-    const result = await stmt.execute();
+    const [result] = await conn.promise().query(sql, [carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello]);
     // Successo: l'esecuzione è andata a buon fine
-    let idMacchina = conn.insert_id;
+    console.log(result);
+    let idMacchina = result.id;
     // Process images
     let images = requestData.images;
     for (let image of images) {
       // Generate a unique filename
       let filename = uniqid() + '.png';
       // Save the image to the filesystem
-      fs.writeFileSync('immagini/' + filename, Buffer.from(image, 'base64'));
+      fs.writeFileSync('immaginiAuto/' + filename, Buffer.from(image, 'base64'));
       // Insert the image path into the database
-      let stmt = conn.prepare("INSERT INTO immagine(path, idMacchina) VALUES(?, ?)");
-      stmt.bind_param("si", filename, idMacchina);
-      await stmt.execute();
+      let sql = "INSERT INTO immagine(path, idMacchina) VALUES(?, ?)";
+      const [result] = await conn.promise().query(sql, [filename, idMacchina]);
     }
     res.send({ "result": true });
   } catch (err) {
@@ -355,10 +330,9 @@ app.post('/postAuto', async (req, res) => {
 app.post("/immagine", async (req, res) => {
   const idMacchina = req.body.idMacchina;
   try {
-    const result = await conn.query(
-      "SELECT * FROM immagine WHERE idMacchina = ?",
-      [idMacchina]
-    );
+    const sql =
+      "SELECT * FROM immagine WHERE idMacchina = ?";
+    const [result] = await conn.promise().query(sql, [idMacchina]);
     if (result.length > 0) {
       const path = result[0].path;
       const base64Image = getBase64Image(path);
@@ -374,7 +348,7 @@ app.post("/immagine", async (req, res) => {
 // Metodo per ottenere le marche
 app.get("/marca", async (req, res) => {
   try {
-    const result = await conn.query("SELECT * FROM marca");
+    const [result] = await conn.promise().query("SELECT * FROM marca");
     res.json({ result });
   } catch (err) {
     throw err;
@@ -384,7 +358,7 @@ app.get("/marca", async (req, res) => {
 // Metodo per ottenere i modelli
 app.get("/modello", async (req, res) => {
   try {
-    const result = await conn.query(
+    const [result] = await conn.promise().query(
       "SELECT model.* FROM modello model JOIN marca mar ON model.idMarca = mar.idMarca"
     );
     res.json({ result });
@@ -396,7 +370,7 @@ app.get("/modello", async (req, res) => {
 // Metodo per ottenere le transazioni
 app.get("/transazione", async (req, res) => {
   try {
-    const result = await conn.query(
+    const [result] = await conn.promise().query(
       "SELECT mar.nome, model.nome, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca"
     );
     res.json({ result });
@@ -408,7 +382,7 @@ app.get("/transazione", async (req, res) => {
 // Metodo per ottenere le auto preferite
 app.get("/preferiti", async (req, res) => {
   try {
-    const result = await conn.query(
+    const [result] = await conn.promise().query(
       "SELECT mar.nome, model.nome, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca"
     );
     res.json({ result });
@@ -421,10 +395,8 @@ app.get("/preferiti", async (req, res) => {
 app.post("/utente", async (req, res) => {
   const username = req.body.username;
   try {
-    const result = await conn.query(
-      "SELECT * FROM utenteTpsi WHERE username = ?",
-      [username]
-    );
+    const sql = "SELECT * FROM utenteTpsi WHERE username = ?";
+    const [result] = await conn.promise().query(sql, [username])
     res.json({ result });
   } catch (err) {
     throw err;
@@ -439,11 +411,14 @@ app.post("/utente", async (req, res) => {
 // Metodo per ottenere le macchine
 app.get("/macchina", async (req, res) => {
   try {
-    const result = await conn.query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca");
+    const result = await conn.promise().query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca");
     let data = [];
-    for (let row of result) {
-      let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
+    console.log("result: " + result);
+    for (let row of result[0]) {
+      const sql = "SELECT * FROM immagine WHERE idMacchina = ?";
+      const [resultImg] = await conn.promise().query(sql, [row.idMacchina]);
       let arrayImg = [];
+      console.log(resultImg);
       for (let rowImg of resultImg) {
         let path = rowImg.path;
         let base64Image = getBase64Image(path);
@@ -452,7 +427,6 @@ app.get("/macchina", async (req, res) => {
       row.immagini = arrayImg;
       data.push(row);
     }
-    conn.end();
     res.json({ "result": data });
   } catch (err) {
     throw err;
@@ -462,13 +436,15 @@ app.get("/macchina", async (req, res) => {
 // Metodo per ottenere le auto nuove
 app.get("/autonuove", async (req, res) => {
   try {
-    const result = await conn.query(
-      "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Nuovo'"
+    const result = await conn.promise().query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Nuovo'"
     );
     let data = [];
-    for (let row of result) {
-      let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
+    console.log("result: " + result);
+    for (let row of result[0]) {
+      const sql = "SELECT * FROM immagine WHERE idMacchina = ?";
+      const [resultImg] = await conn.promise().query(sql, [row.idMacchina]);
       let arrayImg = [];
+      console.log(resultImg);
       for (let rowImg of resultImg) {
         let path = rowImg.path;
         let base64Image = getBase64Image(path);
@@ -477,7 +453,6 @@ app.get("/autonuove", async (req, res) => {
       row.immagini = arrayImg;
       data.push(row);
     }
-    conn.end();
     res.json({ "result": data });
   } catch (err) {
     throw err;
@@ -487,13 +462,15 @@ app.get("/autonuove", async (req, res) => {
 // Metodo per ottenere le auto usate
 app.get("/autousate", async (req, res) => {
   try {
-    const result = await conn.query(
-      "SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Usato'"
+    const result = await conn.promise().query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Usato'"
     );
     let data = [];
-    for (let row of result) {
-      let resultImg = await conn.query("SELECT * FROM immagine WHERE idMacchina = ?", [row.idMacchina]);
+    console.log("result: " + result);
+    for (let row of result[0]) {
+      const sql = "SELECT * FROM immagine WHERE idMacchina = ?";
+      const [resultImg] = await conn.promise().query(sql, [row.idMacchina]);
       let arrayImg = [];
+      console.log(resultImg);
       for (let rowImg of resultImg) {
         let path = rowImg.path;
         let base64Image = getBase64Image(path);
@@ -502,7 +479,6 @@ app.get("/autousate", async (req, res) => {
       row.immagini = arrayImg;
       data.push(row);
     }
-    conn.end();
     res.json({ "result": data });
   } catch (err) {
     throw err;
@@ -512,9 +488,8 @@ app.get("/autousate", async (req, res) => {
 // Metodo per ottenere l'elenco delle  chat di un admin
 app.post("/chatAdmin", async (req, res) => {
   try {
-    const result = await conn.query(
-      "SELECT c.ID,u.username FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente"
-    );
+
+    const [result] = await conn.promise().query("SELECT c.ID,u.username FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente");
     res.json({ result });
   } catch (err) {
     throw err;
@@ -525,10 +500,10 @@ app.post("/chatAdmin", async (req, res) => {
 app.post("/messaggi", async (req, res) => {
   const chatId = req.body.chatId;
   try {
-    const result = await conn.query(
-      "SELECT * FROM Messaggio WHERE Chat_ID = ?",
-      [chatId]
-    );
+    const sql =
+      "SELECT * FROM Messaggio WHERE Chat_ID = ?";
+    const [result] = await conn.promise().query(sql,[chatId]);
+
     res.json({ result });
   } catch (err) {
     throw err;
@@ -539,10 +514,8 @@ app.post("/messaggi", async (req, res) => {
 app.post("/chatUtente", async (req, res) => {
   const username = req.body.username;
   try {
-    const result = await conn.query(
-      "SELECT c.ID FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente WHERE u.username = ?",
-      [username]
-    );
+    const  sql =    "SELECT c.ID FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente WHERE u.username = ?";
+      const [result] = await conn.promise().query(sql,[username]);
     res.json({ result });
   } catch (err) {
     throw err;
@@ -553,14 +526,12 @@ app.post("/chatUtente", async (req, res) => {
 app.post("/newChat", async (req, res) => {
   const username = req.body.username;
   try {
-    const result = await conn.query(
-      "SELECT id FROM utenteTpsi  WHERE username = ?",
-      [username]
-    );
-    await conn.query(
-      "INSERT INTO Chat(idUtente) values(?)",
-      [result[0].id]
-    );
+   
+    const  sql =    "SELECT id FROM utenteTpsi  WHERE username = ?";
+      const [result] = await conn.promise().query(sql,[username]);
+      const  sql2 =    "INSERT INTO Chat(idUtente) values(?)";
+      const [result2] = await conn.promise().query(sql,result[0].id);
+
     res.json({ result });
   } catch (err) {
     throw err;
@@ -576,10 +547,10 @@ app.post("/newMessage", async (req, res) => {
   let data = day.toLocaleDateString("it-IT"); // Formatta la data in gg/mm/aaaa
   let ora = day.toLocaleTimeString("it-IT"); // Formatta l'ora in hh:mm:ss
   try {
-    const result = await conn.query(
-      "INSERT INTO Messaggio(Data,Mittente,Testo,Ora,Chat_ID) values(?,?,?,?,?)",
-      [data, username, testo, ora, chatId]
-    );
+
+    const  sql = "INSERT INTO Messaggio(Data,Mittente,Testo,Ora,Chat_ID) values(?,?,?,?,?)";
+
+    const [result] = await conn.promise().query(sql,[data, username, testo, ora, chatId]);
     res.json({ result });
   } catch (err) {
     throw err;

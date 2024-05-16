@@ -4,14 +4,10 @@ const descrizione = document.getElementById("descrizione");
 let auto = [];
 
 async function getAutoList() {
-  try {
-    const response = await fetch("/macchina");
+  const response = await fetch("/macchina");
     const data = await response.json();
     console.log(data);
     renderAuto(data.result);
-  } catch (error) {
-    console.error('Si è verificato un errore:', error);
-  }
 }
 
 window.onload = getAutoList;
@@ -60,7 +56,7 @@ function renderAuto(data) {
     }
     preferiti.onclick = () => {
  
-      reinderizza(data[i].idMacchina);
+      addPrefe(idUser, idMacchina);
 
     }
   }
@@ -111,32 +107,38 @@ let log = true;
 
 const user = sessionStorage.getItem('username');
 
-async function getUtente(user) {
-  try {
-    const response = await fetch("/utente", {
-      method: "POST", 
-      headers: {"content-type": "Application/json"},
-      body: JSON.stringify({
-        username: user
-      })
+function getUtente(user) {
+  fetch("/utente", {
+    method: "POST", 
+    headers: {"content-type": "Application/json"},
+    body: JSON.stringify({
+
+      username: user
+
+    })
+
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log("utente: ", data);
+      if (data.error) {
+        log = false;
+      }
+      if (log === false) {
+
+        console.log("utente non registrato");
+
+      } else {
+
+        console.log("utente registrato");
+
+      return data.username;
+
+      }
+    })
+    .catch(error => {
+      console.error('Si è verificato un errore:', error);
     });
-
-    const data = await response.json();
-    console.log("utente: ", data);
-
-    if (data.error) {
-      log = false;
-    }
-
-    if (log === false) {
-      console.log("utente non registrato");
-    } else {
-      console.log("utente registrato");
-      return idU = data.username;
-    }
-  } catch (error) {
-    console.error('Si è verificato un errore:', error);
-  }
 }
 
 
@@ -148,31 +150,30 @@ if(sessionStorage.getItem('username')) {
 
 }
 
-function reinderizza(idMacchina) {
+
+function addPrefe(user, macchina){
 
   if(log === false){
 
     window.location.href = "./registration.html";
 
-  }
+  }else{
 
   console.log("aggiunto ai preferiti");
-  addPrefe(idUser, idMacchina)
+  
+  fetch("/preferiti", {
+    method: "POST",
 
-}
+    headers: {"content-type": "Application/json"},
 
+    body: JSON.stringify({
 
-async function addPrefe(user, macchina) {
-  try {
-    await fetch("/preferiti", {
-      method: "POST",
-      headers: {"content-type": "Application/json"},
-      body: JSON.stringify({
-        iduser: user,
-        idmacchina: macchina
-      })
-    });
-  } catch (error) {
-    console.error('Si è verificato un errore:', error);
+      iduser: user,
+      idmacchina: macchina
+
+    })
+
+  })
   }
+
 }

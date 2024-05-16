@@ -10,7 +10,7 @@ export const registra = async (username, password, email) => {
                 username: username,
                 password: password,
                 mail: email,
-                admin: 1
+                admin: 0
             }),
         });
         if (!response.ok) {

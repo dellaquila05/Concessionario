@@ -10,7 +10,7 @@ const email = document.getElementById("email");
 const buttonRegister = document.getElementById("submit");
 
 
-buttonRegister.onclick = () => {
+buttonRegister.onclick = async () => {
     let user = username.value;
     let pass = password.value;
     let confPass = passwordConfirm.value;
@@ -18,9 +18,9 @@ buttonRegister.onclick = () => {
     if (user !== "" && pass !== "" && mail !== "" && confPass !== "") {
         if (confPass === pass) {
             if (user.length > 6 && pass.length > 6) {
-                registra(user, pass, mail).catch(error => {
-                    console.error(error);
-                });
+               await registra(user, pass, mail);
+                window.location.href = './admin.html';
+
             } else {
                 alert("Input troppo corti.");
             }

@@ -1,10 +1,7 @@
 
-import {registraAdmin, postModello, postAuto, postMarca, getMarche, getModello} from "./servizi.js";
+import { postModello, postAuto, postMarca, getMarche, getModello} from "./servizi.js";
 
-const username = document.getElementById("username");
-const password = document.getElementById("password");
-const passwordConfirm = document.getElementById("confpass");
-const buttonRegister = document.getElementById("registra");
+
 const modal = new bootstrap.Modal("#Modal", {});
 const buttModal = document.getElementById("buttonModal");
 const selectmodello = document.getElementById("selectModello");
@@ -21,14 +18,12 @@ const immagini = document.getElementById("immagini");
 const salva = document.getElementById("salva");
 const newModello = document.getElementById("newModello");
 const newMarca = document.getElementById("newMarca");
-const buttonAddModello = document.getElementById("addModello");
 const selectNewModelloMarca = document.getElementById("newModelloMarca");
 const buttonNewModello = document.getElementById("buttonNewModello");
 const buttonNewMarca = document.getElementById("buttonNewMarca");
 
 
 salva.onclick = async () => {
-    let marca = selectmarca.value;
     let modello = selectmodello.value;
     let carburanteVal = carburante.value;
     let descrizioneVal = descrizione.value;
