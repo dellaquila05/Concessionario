@@ -5,22 +5,16 @@ const user = document.getElementById("username");
 const pass = document.getElementById("password");
 const submit = document.getElementById("submit");
 
-
-
 submit.onclick = async () => {
-  console.log("1");
-  await login(user.value,pass.value);
-  console.log(results);
-
-  console.log(results[0]);
-  if(results[0].admin.loginAdmin === true){
-    window.location.href = './admin.html';
-
-  }else if(results[0].admin.loginUtente === true){
-    window.location.href = './home.html';
+  const result = await login(user.value,pass.value);
+  if (result.loginAdmin) {
+    window.location.href = './admin.html'; 
+  } else if (result.loginUtente) {
+    window.location.href = './home.html'; 
     sessionStorage.setItem('username', user.value);
+  } else {
+    alert('Login fallito. Controlla username e password.');
   }
- 
 };
 
 // Seleziona l'elemento span e l'input della password

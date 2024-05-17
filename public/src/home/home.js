@@ -5,9 +5,9 @@ let auto = [];
 
 async function getAutoList() {
   const response = await fetch("/macchina");
-    const data = await response.json();
-    console.log(data);
-    renderAuto(data.result);
+  const data = await response.json();
+  console.log(data);
+  renderAuto(data.result);
 }
 
 window.onload = getAutoList;
@@ -31,7 +31,7 @@ function renderAuto(data) {
   let html = "";
 
   for (let i = 0; i < data.length; i++) {
- 
+
     let rowHtml =
       templateCard.replace('{nome}',
         data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}',
@@ -55,7 +55,7 @@ function renderAuto(data) {
       renderAuto(data);
     }
     preferiti.onclick = () => {
- 
+
       addPrefe(idUser, idMacchina);
 
     }
@@ -84,7 +84,7 @@ function renderModal(data, i) {
 
   let html = "";
 
-    let rowHtml =
+  let rowHtml =
     templateModal.replace('{nome}', data[i].marca + " " + data[i].modello)
       .replace('{prezzo}', data[i].prezzo)
       .replace('{disponibilita}', data[i].disponibilita)
@@ -96,7 +96,7 @@ function renderModal(data, i) {
       .replace('{carburante}', data[i].carburante)
       .replace('{descrizione}', data[i].descrizione);
 
-      html += rowHtml;
+  html += rowHtml;
 
   descrizione.innerHTML = html;
 
@@ -107,73 +107,68 @@ let log = true;
 
 const user = sessionStorage.getItem('username');
 
-function getUtente(user) {
-  fetch("/utente", {
-    method: "POST", 
-    headers: {"content-type": "Application/json"},
-    body: JSON.stringify({
-
-      username: user
-
-    })
-
+async function getUtente(user) {
+  const response = await fetch("/utente", {
+      method: "POST", headers: {"content-type": "Application/json"}, 
+      body: JSON.stringify({
+          username: user
+      })
   })
-    .then(response => response.json())
-    .then(data => {
-      console.log("utente: ", data);
-      if (data.error) {
-        log = false;
-      }
-      if (log === false) {
-
-        console.log("utente non registrato");
-
-      } else {
-
-        console.log("utente registrato");
-
-      return data.username;
-
-      }
-    })
-    .catch(error => {
-      console.error('Si è verificato un errore:', error);
-    });
+  const data = await response.json()
+  console.log(data.result);
+  if (data.error) {
+      log = false;
+  }
+  if (log === false) {
+      console.log("utente non registrato");
+      return log;
+  } else {
+      console.log(data.result.username);
+      return data.result.username;
+  }
 }
 
 
 const idUser = "";
 
-if(sessionStorage.getItem('username')) {
-  
- idUser = getUtente(user);
+if (sessionStorage.getItem('username')) {
+
+  idUser = await getUtente(user);
 
 }
 
+ function addPrefe(user, macchina) {
 
-function addPrefe(user, macchina){
-
-  if(log === false){
+  if (log === false) {
 
     window.location.href = "./registration.html";
 
-  }else{
+  } else {
 
-  console.log("aggiunto ai preferiti");
-  
-  fetch("/preferiti", {
-    method: "POST",
+    console.log("aggiunto ai preferiti");
 
-    headers: {"content-type": "Application/json"},
+     fetch("/preferiti", {
+      method: "POST",
 
-    body: JSON.stringify({
+      headers: { "content-type": "Application/json" },
 
-      iduser: user,
-      idmacchina: macchina
+      body: JSON.stringify({
 
+        iduser: user,
+        idmacchina: macchina
+
+      })
+
+    }).then(response => {
+       return response.json();
     })
-
-  })
+      .then(data => {
+        console.log(data);
+        console.log("aggiunto ai preferiti");
+      })
+      .catch(error => {
+        console.error('Si è verificato un errore:', error);
+      });
   }
 
 }

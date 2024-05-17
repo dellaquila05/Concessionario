@@ -53,15 +53,11 @@ app.post("/login", async (req, res) => {
   const password = req.body.password;
   const sql = 'SELECT * FROM utenteTpsi WHERE username = ?';
   const [results] = await conn.promise().query(sql, [username]);
-
     if (results.length > 0) {
-      const comparison = await bcrypt.compare(password, results[0].pass);
-      console.log(results);
-
+      const comparison = await bcrypt.compare(password, results[0].password);
       if (comparison) {
         // Controlla se l'utente è un admin
         console.log(results)
-
         if (results[0].admin) {
           res.json({ loginAdmin: true });
         } else {
@@ -304,7 +300,9 @@ app.post('/postAuto', async (req, res) => {
     const [result] = await conn.promise().query(sql, [carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello]);
     // Successo: l'esecuzione è andata a buon fine
     console.log(result);
-    let idMacchina = result.id;
+    let sql2 ="SELECT idMacchina FROM macchina ORDER BY mac.idMacchina DESC LIMIT 1" ;
+    const [result2] = await conn.promise().query(sql2);
+    let idMacchina = result2;
     // Process images
     let images = requestData.images;
     for (let image of images) {
@@ -359,7 +357,7 @@ app.get("/marca", async (req, res) => {
 app.get("/modello", async (req, res) => {
   try {
     const [result] = await conn.promise().query(
-      "SELECT model.* FROM modello model JOIN marca mar ON model.idMarca = mar.idMarca"
+      "SELECT model.*, mar.nome AS marca FROM modello model JOIN marca mar ON model.idMarca = mar.idMarca "
     );
     res.json({ result });
   } catch (err) {
@@ -403,17 +401,11 @@ app.post("/utente", async (req, res) => {
   }
 });
 
-
-
-
-
-
 // Metodo per ottenere le macchine
 app.get("/macchina", async (req, res) => {
   try {
-    const result = await conn.promise().query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca");
+    const result = await conn.promise().query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca ");
     let data = [];
-    console.log("result: " + result);
     for (let row of result[0]) {
       const sql = "SELECT * FROM immagine WHERE idMacchina = ?";
       const [resultImg] = await conn.promise().query(sql, [row.idMacchina]);

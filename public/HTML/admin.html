@@ -128,8 +128,13 @@
                 <!-- Carburante -->
                 <div class="mb-3">
                     <label for="carburante" class="form-label">Carburante</label>
-                    <input type="text" class="form-control" id="carburante">
-                </div>
+                    <select class="form-select" id="carburante">
+                        <option value="carburante">Carburante</option>
+                        <option value="Benzina">Benzina</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Gpl">Gpl</option>
+                    </select>                </div>
                 <!-- Descrizione -->
                 <div class="mb-3">
                     <label for="descrizione" class="form-label">Descrizione</label>
@@ -140,8 +145,8 @@
                     <label for="condizioni" class="form-label">Condizioni</label>
                     <select class="form-select" id="condizioni">
                         <option value="condizioni">Condizioni</option>
-                        <option value="usato">Usato</option>
-                        <option value="nuovo">Nuovo</option>
+                        <option value="Usato">Usato</option>
+                        <option value="Nuovo">Nuovo</option>
                     </select>
                 </div>
                 <!-- Cambio -->
@@ -149,8 +154,10 @@
                     <label for="cambio" class="form-label">Cambio</label>
                     <select class="form-select" id="cambio">
                         <option value="cambio">Cambio</option>
-                        <option value="manuale">Manuale</option>
-                        <option value="automatico">Automatico</option>
+                        <option value="Manuale">Manuale</option>
+                        <option value="Automatico">Automatico</option>
+                        <option value="Semiutomatico">Semiautomatico</option>
+
                     </select>
                 </div>
                 <!-- Allestimento -->
@@ -171,12 +178,12 @@
                 <!-- KM -->
                 <div class="mb-3">
                     <label for="km" class="form-label">KM</label>
-                    <input type="number" class="form-control" id="km">
+                    <input type="number" class="form-control" id="km" min="0">
                 </div>
                 <!-- Prezzo -->
                 <div class="mb-3">
                     <label for="prezzo" class="form-label">Prezzo</label>
-                    <input type="number" class="form-control" id="prezzo">
+                    <input type="number" class="form-control" id="prezzo" min="0">
                 </div>
                 <!-- Immagini -->
                 <div class="mb-3">
