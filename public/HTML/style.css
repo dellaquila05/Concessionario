@@ -703,3 +703,10 @@ a.article:hover {
     border-top-left-radius: 50px;
     transform: scale(1.05);
 }
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block; /* Puoi usare altre proprietà display come inline, inline-block, ecc., secondo le tue necessità */
+}

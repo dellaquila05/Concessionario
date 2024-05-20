@@ -1,12 +1,79 @@
+import { sendMessage, getChatUtente, getMessaggi } from "./servizi.js";
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");
+const divChat = document.getElementById("divChat");
+const pagPrefe = document.getElementById("pagPrefe");
+const loginli = document.getElementById("loginli");
+const registerli = document.getElementById("registerli");
+const logout = document.getElementById("logout");
+
+if (sessionStorage.getItem('username')) {
+
+    registerli.classList.remove('visible');
+    registerli.classList.add('hidden');
+    loginli.classList.remove('visible');
+    loginli.classList.add('hidden');
+    logout.classList.remove('hidden');
+    logout.classList.add('visible');
+    
+  }else{
+  
+    loginli.classList.remove('hidden');
+    loginli.classList.add('visible');
+    registerli.classList.remove('hidden');
+    registerli.classList.add('visible');
+  
+  }
+  
+  logout.onclick = () => {
+  
+    window.location.href = "./login.html";
+    sessionStorage.removeItem('username');
+  
+  }
+
 let auto = [];
+const messages = [];
+const socket = io();
+const user = sessionStorage.getItem('username');
+pagPrefe.onclick = () => {
+
+  if (sessionStorage.getItem('username')) {
+
+      window.location.href = "./cart.html";
+
+  }else{
+
+      window.location.href = "./login.html";
+
+  }
+
+}
+const templateChat = `
+<div class="container">
+  <ul id="chat" class="list-group">
+ 
+  </ul>
+</div>
+<div class="text-center">
+  <input
+    type="text"
+    id="input"
+    class="form-control"
+    placeholder="Enter a message"
+  />
+  <button id="sendButton" type="button" class="btn btn-primary">
+    Send
+  </button>
+</div>`;
+
+const template = '<li class="list-group-item">%MESSAGE</li>';
+
 
 async function getAutoList() {
   const response = await fetch("/macchina");
   const data = await response.json();
-  console.log(data);
   renderAuto(data.result);
 }
 
@@ -32,12 +99,9 @@ function renderAuto(data) {
 
   for (let i = 0; i < data.length; i++) {
 
-    let rowHtml =
-      templateCard.replace('{nome}',
-        data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}',
-          data[i].descrizione).replace('{src}', data[i].immagini[0]).replace('{idP}', "bottoneP" + i);
+      let rowHtml = templateCard.replace('{nome}', data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}', data[i].descrizione).replace('{src}', data[i].immagini[0]).replace('{idP}', "bottoneP" + i);
 
-    html += rowHtml;
+      html += rowHtml;
   }
 
   vetrina.innerHTML = html;
@@ -47,97 +111,148 @@ function renderAuto(data) {
   let preferiti;
 
   for (let i = 0; i < data.length; i++) {
-    dettagli = document.getElementById("bottoneD" + i);
-    preferiti = document.getElementById("bottoneP" + i);
-    dettagli.onclick = () => {
-      modal.show();
-      renderModal(data, i);
-      renderAuto(data);
-    }
-    preferiti.onclick = () => {
-
-      addPrefe(idUser, idMacchina);
-
-    }
+      dettagli = document.getElementById("bottoneD" + i);
+      preferiti = document.getElementById("bottoneP" + i);
+      dettagli.onclick = () => {
+          modal.show();
+          renderModal(data[i]);
+          renderAuto(data);
+      }
+      preferiti.onclick = () => {
+          const idMacchina = data[i].idMacchina;
+          addPrefe(idUser, idMacchina);
+      }
   }
 }
 
 const templateModal = `
-<div class="auto">
-    <h2>Dettagli dell'auto</h2>
-    <ul>
-        <li><strong>nome:</strong> {nome}</li>
-        <li><strong>prezzo:</strong> {prezzo}</li>
-        <li><strong>disponibilità:</strong> {disponibilita}</li>
-        <li><strong>condizione:</strong> {condizione}</li>
-        <li><strong>KM:</strong> {km}</li>
-        <li><strong>allestimento:</strong> {allestimento}</li>
-        <li><strong>anno:</strong> {anno}</li>
-        <li><strong>cambio:</strong> {cambio}</li>
-        <li><strong>carburante:</strong> {carburante}</li>
-        <li><strong>descrizione:</strong> {descrizione}</li>
-    </ul>
+<div class="container-fluid">
+    <div class="row mt-3 justify-content-center">
+        <div class="col-auto">
+            <h1>{nome}</h1>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-auto">
+            <h2>Prezzo: {prezzo}€</h2>
+        </div>
+        <div class="col-auto">
+            <h2>Disponibilità: {disponibilita}</h2>
+        </div>
+        <div class="col-auto">
+             <h2>Km: {km}</h2>
+        </div>
+         <div class="col-auto">
+              <h2>Anno: {anno}</h2>
+         </div>
+          <div class="col-auto">
+              <h2>Allestimento: {allestimento}</h2>
+          </div>
+          <div class="col-auto">
+              <h2>Cambio: {cambio}</h2>
+          <div>
+    </div>
+    </div>
+    </div>
+    <div class="row mt-3">
+         <h2>Condizione: {condizione}</h2>
+    </div>
+    <div class="row mt-3">
+        <p>{descrizione}</p>
+    </div>    
 </div>
 `;
 
-function renderModal(data, i) {
-
-  let html = "";
-
-  let rowHtml =
-    templateModal.replace('{nome}', data[i].marca + " " + data[i].modello)
-      .replace('{prezzo}', data[i].prezzo)
-      .replace('{disponibilita}', data[i].disponibilita)
-      .replace('{condizione}', data[i].condizione)
-      .replace('{km}', data[i].KM)
-      .replace('{allestimento}', data[i].allestimento)
-      .replace('{anno}', data[i].anno)
-      .replace('{cambio}', data[i].cambio)
-      .replace('{carburante}', data[i].carburante)
-      .replace('{descrizione}', data[i].descrizione);
-
-  html += rowHtml;
-
-  descrizione.innerHTML = html;
-
+function renderModal(data) {
+    console.log(data);
+    let html = "";
+    let rowHtml = templateModal.replace('{nome}', data.marca + " " + data.modello)
+        .replace('{prezzo}', data.prezzo)
+        .replace('{disponibilita}', data.disponibilità)
+        .replace('{condizione}', data.condizione)
+        .replace('{km}', data.KM)
+        .replace('{allestimento}', data.allestimento)
+        .replace('{anno}', data.anno)
+        .replace('{cambio}', data.cambio)
+        .replace('{carburante}', data.carburante)
+        .replace('{descrizione}', data.descrizione);
+    html += rowHtml;
+    descrizione.innerHTML = html;
 }
 
 let log = true;
 
 
-const user = sessionStorage.getItem('username');
 
 async function getUtente(user) {
   const response = await fetch("/utente", {
-      method: "POST", headers: {"content-type": "Application/json"}, 
-      body: JSON.stringify({
-          username: user
-      })
+    method: "POST", headers: { "content-type": "Application/json" },
+    body: JSON.stringify({
+      username: user
+    })
   })
   const data = await response.json()
-  console.log(data.result);
   if (data.error) {
-      log = false;
+    log = false;
   }
   if (log === false) {
-      console.log("utente non registrato");
-      return log;
+    console.log("utente non registrato");
+    return log;
   } else {
-      console.log(data.result.username);
-      return data.result.username;
+    return data.result.username;
   }
 }
 
-
-const idUser = "";
-
-if (sessionStorage.getItem('username')) {
-
-  idUser = await getUtente(user);
+const renderMessageVecchi = async (chatId) => {
+  const messaggi = await getMessaggi(chatId);
+  let html = "";
+  for (let i = 0; i < messaggi.length; i++) {
+    const response = messaggi[i].Data + " " + messaggi[i].Ora + " Mittente: " + messaggi[i].Mittente;
+    const row = template.replace("%MESSAGE", response);
+    html += row;
+  }
+  divChat.innerHTML = html;
+  window.scrollTo(0, document.body.scrollHeight);
 
 }
 
- function addPrefe(user, macchina) {
+const renderMessage = () => {
+  let html = "";
+  messages.forEach((message) => {
+    const row = template.replace("%MESSAGE", message);
+    html += row;
+  });
+  divChat.innerHTML = html;
+  window.scrollTo(0, document.body.scrollHeight);
+};
+
+if (sessionStorage.getItem('username')) {
+  const username = await getUtente(user);
+  socket.emit("username", username);
+  const  datiChat = await getChatUtente(username);
+  console.log(datiChat.ID);
+  let chatId = datiChat.ID;
+  await renderMessageVecchi(chatId);
+  divChat.innerHTML = templateChat;
+  socket.on("chat", async (message) => {
+    messages.push(message);
+    renderMessage();
+  });
+  const sendButton = document.getElementById("sendButton");
+  sendButton.onclick = () => {
+    if (input.value.trim() !== "") {
+      socket.emit("message", input.value);
+      sendMessage(username, chatId, input.value);
+      input.value = "";
+    } else {
+      alert("You can't send empty message.");
+    }
+  };
+}
+
+
+
+function addPrefe(user, macchina) {
 
   if (log === false) {
 
@@ -147,7 +262,7 @@ if (sessionStorage.getItem('username')) {
 
     console.log("aggiunto ai preferiti");
 
-     fetch("/preferiti", {
+    fetch("/preferiti", {
       method: "POST",
 
       headers: { "content-type": "Application/json" },
@@ -160,11 +275,13 @@ if (sessionStorage.getItem('username')) {
       })
 
     }).then(response => {
-       return response.json();
+      return response.json();
     })
       .then(data => {
-        console.log(data);
-        console.log("aggiunto ai preferiti");
+                console.log("aggiunto ai preferiti");
+                if(data.result === false){
+                  window.location.href = "./login.html";
+              }
       })
       .catch(error => {
         console.error('Si è verificato un errore:', error);
@@ -172,3 +289,4 @@ if (sessionStorage.getItem('username')) {
   }
 
 }
+

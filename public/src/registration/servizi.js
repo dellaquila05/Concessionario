@@ -1,4 +1,21 @@
-
+export async function postNewChat(username) {
+    try {
+      const response = await fetch('/newChat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username
+        }),
+      });
+  
+      const data = await response.json();
+      console.log('Success:', data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
 export const registra = async (username, password, email) => {
     try {
         const response = await fetch("/registrazione", {

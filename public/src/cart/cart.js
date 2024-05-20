@@ -1,38 +1,55 @@
 const user = sessionStorage.getItem('username');
 const modal = new bootstrap.Modal("#ModalDett", {});
+const descrizione = document.getElementById("descrizione");
+const cardPrefe = document.getElementById('preferiti');
+const loginli = document.getElementById("loginli");
+const registerli = document.getElementById("registerli");
+const logout = document.getElementById("logout");
 
-function getUtente(user) {
-  fetch("/utente", {
-    method: "POST", 
-    headers: {"content-type": "Application/json"},
+if (sessionStorage.getItem('username')) {
+
+    registerli.classList.remove('visible');
+    registerli.classList.add('hidden');
+    loginli.classList.remove('visible');
+    loginli.classList.add('hidden');
+    logout.classList.remove('hidden');
+    logout.classList.add('visible');
+    
+  }else{
+  
+    loginli.classList.remove('hidden');
+    loginli.classList.add('visible');
+    registerli.classList.remove('hidden');
+    registerli.classList.add('visible');
+  
+  }
+  
+  logout.onclick = () => {
+  
+    window.location.href = "./login.html";
+    sessionStorage.removeItem('username');
+  
+  }
+
+async function getUtente(user) {
+  const response = await fetch("/utente", {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
-
       username: user
-
     })
+  });
 
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log("utente: ", data);
-      if (data.error) {
-        log = false;
-      }
-      if (log === false) {
+  if (!response.ok) {
+    throw new Error('Errore nella richiesta');
+  }
 
-        console.log("utente non registrato");
+  const data = await response.json();
+  console.log("idUtente", data.result.username);
 
-      } else {
-
-        console.log("utente registrato");
-
-      return idU = data.username;
-
-      }
-    })
-    .catch(error => {
-      console.error('Si è verificato un errore:', error);
-    });
+  const preferiti = await getPreferiti(data.result.username);
 }
 
 const idUser = "";
@@ -53,87 +70,122 @@ const getPreferiti =  (username) => {
         }
     });
     return  response.json();
+    renderAuto(preferiti);
 }
 
 const data = getPreferiti(idUser);
 
 const templateCard = `
 <div class="col-md-4 mt-3">
-<div class="card">
+  <div class="card">
     <img src="data:image/jpeg;base64,{src}" class="card-img-top" alt="...">
     <div class="card-body">
-        <h5 class="card-title">{nome}</h5>
-        <p class="card-text">{descrizione}</p>
-        <a id="{idD}" class="btn btn-primary">Dettagli</a>
+      <h5 class="card-title">{nome}</h5>
+      <p class="card-text">{descrizione}</p>
+      <a id="{idD}" class="btn btn-primary">Dettagli</a>
+      <button id="{idR}" class="btn btn-danger">Rimuovi</button>
     </div>
-</div>
+  </div>
 </div>
 `;
 
 function renderAuto(data) {
-
-    let html = "";
-  
-    for (let i = 0; i < data.length; i++) {
-   
-      let rowHtml =
-        templateCard.replace('{nome}',
-          data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}',
-            data[i].descrizione).replace('{src}', data[i].immagini[0]);
-  
+  console.log(data);
+  let html = "";
+  for (let i = 0; i < data.length; i++) {
+      let rowHtml = templateCard.replace('{nome}', data[i].nomeMarca + " " + data[i].nomeModello)
+          .replace('{idD}', "bottoneD" + i)
+          .replace('{descrizione}', data[i].descrizione)
+          .replace('{idR}', "bottoneR" + i)
+          .replace('{src}', data[i].immagini[i]);
       html += rowHtml;
-    }
-  
-    vetrina.innerHTML = html;
-  
-    let dettagli;
-  
-    for (let i = 0; i < data.length; i++) {
-      dettagli = document.getElementById("bottoneD" + i);
-      dettagli.onclick = () => {
-        modal.show();
-        renderModal(data, i);
-        renderAuto(data);
-      }
-    }
   }
+  cardPrefe.innerHTML = html;
+  for (let i = 0; i < data.length; i++) {
+      const dettagli = document.getElementById("bottoneD" + i);
+      const rimuovi = document.getElementById("bottoneR" + i);
+      dettagli.onclick = () => {
+          modal.show();
+          renderModal(data[i]);
+          renderAuto(data);
+      }
+      rimuovi.onclick = async () => {
+          const idMacchina = data[i].idMacchina;
+          await rimPrefe(idMacchina, username);
+          const val = await getPreferiti(username);
+          renderAuto(val.result);
+      }
+  }
+}
 
-  const templateModal = `
-<div class="auto">
-    <h2>Dettagli dell'auto</h2>
-    <ul>
-        <li><strong>nome:</strong> {nome}</li>
-        <li><strong>prezzo:</strong> {prezzo}</li>
-        <li><strong>disponibilità:</strong> {disponibilita}</li>
-        <li><strong>condizione:</strong> {condizione}</li>
-        <li><strong>KM:</strong> {km}</li>
-        <li><strong>allestimento:</strong> {allestimento}</li>
-        <li><strong>anno:</strong> {anno}</li>
-        <li><strong>cambio:</strong> {cambio}</li>
-        <li><strong>carburante:</strong> {carburante}</li>
-        <li><strong>descrizione:</strong> {descrizione}</li>
-    </ul>
+async function rimPrefe(macchina, username) {
+  console.log(macchina);
+  let urlPrefe = '/deletePreferiti';
+  const response = await fetch(urlPrefe, {
+      method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({
+          idMacchina: String(macchina), idUtente: username
+      })
+  })
+  if (!response.ok) {
+      throw new Error('Errore nella richiesta');
+  }
+  const data = await response.json();
+  console.log(data);
+  return data;
+}
+
+
+const templateModal = `
+<div class="container-fluid">
+  <div class="row mt-3 justify-content-center">
+      <div class="col-auto">
+          <h1>{nome}</h1>
+      </div>
+  </div>
+  <div class="row mt-3">
+      <div class="col-auto">
+          <h2>Prezzo: {prezzo}€</h2>
+      </div>
+      <div class="col-auto">
+          <h2>Disponibilità: {disponibilita}</h2>
+      </div>
+      <div class="col-auto">
+           <h2>Km: {km}</h2>
+      </div>
+       <div class="col-auto">
+            <h2>Anno: {anno}</h2>
+       </div>
+        <div class="col-auto">
+            <h2>Allestimento: {allestimento}</h2>
+        </div>
+        <div class="col-auto">
+            <h2>Cambio: {cambio}</h2>
+        <div>
+  </div>
+  </div>
+  </div>
+  <div class="row mt-3">
+       <h2>Condizione: {condizione}</h2>
+  </div>
+  <div class="row mt-3">
+      <p>{descrizione}</p>
+  </div>    
 </div>
 `;
 
-function renderModal(data, i) {
-
+function renderModal(data) {
+  console.log(data);
   let html = "";
-
-    let rowHtml =
-    templateModal.replace('{nome}', data[i].marca + " " + data[i].modello)
-      .replace('{prezzo}', data[i].prezzo)
-      .replace('{disponibilita}', data[i].disponibilita)
-      .replace('{condizione}', data[i].condizione)
-      .replace('{km}', data[i].KM)
-      .replace('{allestimento}', data[i].allestimento)
-      .replace('{anno}', data[i].anno)
-      .replace('{cambio}', data[i].cambio)
-      .replace('{carburante}', data[i].carburante)
-      .replace('{descrizione}', data[i].descrizione);
-
-      html += rowHtml;
-
+  let rowHtml = templateModal.replace('{nome}', data.nomeMarca + " " + data.nomeModello)
+      .replace('{prezzo}', data.prezzo)
+      .replace('{disponibilita}', data.disponibilità)
+      .replace('{condizione}', data.condizione)
+      .replace('{km}', data.KM)
+      .replace('{allestimento}', data.allestimento)
+      .replace('{anno}', data.anno)
+      .replace('{cambio}', data.cambio)
+      .replace('{carburante}', data.carburante)
+      .replace('{descrizione}', data.descrizione);
+  html += rowHtml;
   descrizione.innerHTML = html;
-
 }

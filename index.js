@@ -10,7 +10,6 @@ const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const conn = mysql.createConnection(conf);
 
-//const io = new Server(server);
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
@@ -18,6 +17,8 @@ app.use(
   }),
 );
 app.use("/", express.static(path.join(__dirname, "public")));
+const server = http.createServer(app);
+const io = new Server(server);
 
 function salvaImg(req) {
   // Controlla se i file sono stati caricati
@@ -381,7 +382,7 @@ app.get("/transazione", async (req, res) => {
 app.get("/preferiti", async (req, res) => {
   try {
     const [result] = await conn.promise().query(
-      "SELECT mar.nome, model.nome, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca"
+      'SELECT mac.idMacchina, mac.carburante, mac.descrizione, mac.condizione, mac.cambio, mac.allestimento, mac.anno, mac.disponibilità, mac.KM, mac.prezzo, mac.idModello, mar.nome AS nomeMarca, modelloM.nome AS nomeModello   FROM preferiti pref  JOIN macchina mac ON pref.idMacchina = mac.idMacchina JOIN modello modelloM ON mac.idModello = modelloM.idModello  JOIN marca mar ON modelloM.idMarca = mar.idMarca   WHERE pref.idUtente = ?'
     );
     res.json({ result });
   } catch (err) {
@@ -508,6 +509,7 @@ app.post("/chatUtente", async (req, res) => {
   try {
     const  sql =    "SELECT c.ID FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente WHERE u.username = ?";
       const [result] = await conn.promise().query(sql,[username]);
+      console.log(result);
     res.json({ result });
   } catch (err) {
     throw err;
@@ -521,10 +523,11 @@ app.post("/newChat", async (req, res) => {
    
     const  sql =    "SELECT id FROM utenteTpsi  WHERE username = ?";
       const [result] = await conn.promise().query(sql,[username]);
+      console.log(result);
       const  sql2 =    "INSERT INTO Chat(idUtente) values(?)";
-      const [result2] = await conn.promise().query(sql,result[0].id);
-
-    res.json({ result });
+      const [result2] = await conn.promise().query(sql2,result);
+      console.log(result2);
+    res.json({ result2 });
   } catch (err) {
     throw err;
   }
@@ -550,9 +553,22 @@ app.post("/newMessage", async (req, res) => {
 });
 
 
+io.on("connection", (socket) => {
+  socket.on("username", (username) => {
+    let day = new Date();
+    let data = day.toLocaleDateString("it-IT"); // Formatta la data in gg/mm/aaaa
+    let ora = day.toLocaleTimeString("it-IT"); // Formatta l'ora in hh:mm:ss
+    // Crea una nuova stanza di chat per l'utente
+    socket.join(username);
+    socket.on("message", (message) => {
+      const response = data + " " + ora + " " + username + ": " + message;
+      console.log(response);
+      io.to(username).emit("chat", response);
+    });
+  });
+});
 
 
-const server = http.createServer(app);
 server.listen(3001, () => {
-  console.log("- server running");
+  console.log("- server running on port 3001");
 });

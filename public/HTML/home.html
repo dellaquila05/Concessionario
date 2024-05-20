@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="../img/icona/logo.png" rel="icon" />
+    <script src="/socket.io/socket.io.js"></script>
 
     <link
             href="https://fonts.googleapis.com/css?family=Lexend"
@@ -61,7 +62,7 @@
                     <a class="nav-link" href="oldCar.html">Usate</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="cart.html">Preferiti</a>
+                    <a id="pagPrefe" class="nav-link" href="#">Preferiti</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="preempted.html">Prelazionate</a>
@@ -70,16 +71,17 @@
                     <a class="nav-link" href="contacts.html">Contacts</a>
                 </li>
                  </ul>
-            <div class="d-flex">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registration.html">Registrati</a>
-                    </li>
-                </ul>
-            </div>
+                 <div class="d-flex">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li id="loginli" class="nav-item visible"> 
+                            <a class="nav-link" href="login.html">Login</a>
+                        </li>
+                        <li id="registerli" class="nav-item visible">
+                            <a class="nav-link" href="registration.html">Registrati</a>
+                        </li>
+                        <li id="logout" type="button" class="nav-item hidden">Logout</li>
+                    </ul>
+                </div>
         </div>
     </div>
 </nav>
@@ -88,13 +90,17 @@
    data-bs-target="#filtriRicercaOffCanvas">
     <i class="bi bi-filter"></i>
 </a>
+<a href="https://www.instagram.com/your_username/" target="_blank"
+   class="btn btn-success position-fixed top-50 start-0 translate-middle-y btn-lg" data-bs-toggle="offcanvas"
+   data-bs-target="#chatOffCanvas">
+    <i class="bi bi-filter"></i>
+</a>
 <section class="jumbotron text-center">
     <div class="container">
         <h1 class="display-4">Benvenuti al Concessionario Auto</h1>
         <p class="lead">La tua destinazione per trovare la tua prossima auto.</p>
     </div>
 </section>
-<br>
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="filtriRicercaOffCanvas"
      aria-labelledby="offcanvasWithBothOptionsLabel">
@@ -104,6 +110,16 @@
     </div>
     <div class="offcanvas-body">
         <p>Try scrolling the rest of the page to see this option in action.</p>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="chatOffCanvas"
+     aria-labelledby="offcanvasWithBothOptionsLabel2">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel2">Chat d'assistenza:</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="divChat">
     </div>
 </div>
 
