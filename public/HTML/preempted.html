@@ -21,6 +21,17 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <link rel="stylesheet" href="../HTML/style.css"/>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
 </head>
 
 <body>
@@ -73,10 +84,7 @@
                     <path
                         d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
                 </svg> </button>
-            <a href="https://www.instagram.com/your_username/" target="_blank" class="btn btn-info btn-lg"
-                data-bs-toggle="offcanvas" data-bs-target="#filtriRicercaOffCanvas">
-                <i class="bi bi-filter"></i>
-            </a>
+            
         </div>
     </div>
  <!-- The Modal -->
@@ -133,9 +141,22 @@
 
     <section class="container">
         <h2 class="text-center mb-4">Auto Prelazionate:</h2>
-        <div class="row" id="prelazionate">
-            
-        </div>
+        <h1>Prelazioni</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Stato</th>
+                <th>Username</th>
+                <th>Modello</th>
+                <th>Marca</th>
+            </tr>
+        </thead>
+        <tbody id="prelazioniTableBody">
+
+        </tbody>
+    </table>
         <br>
     </section>
 

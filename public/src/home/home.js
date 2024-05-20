@@ -1,4 +1,4 @@
-import {inviaEmailAdmin, inviaEmailUtente} from "./servizi.js";
+import {postPrelazione ,inviaEmailAdmin, inviaEmailUtente} from "./servizi.js";
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");
@@ -320,9 +320,8 @@ prelaziona.onclick = async () => {
   if (sessionStorage.getItem('username')) {
       const username = sessionStorage.getItem('username');
       const idMacchina = sessionStorage.getItem('idMacchina');
-      const prelazione = await postPrelazione(sessionStorage.getItem('idMacchina'), username);
-      console.log(prelazione);
-      alert("Prelazione effettuata con successo");
+      await postPrelazione( username, idMacchina);
+      alert("Effettuato con successo!.");
   } else {
       window.location.href = "./login.html";
   }

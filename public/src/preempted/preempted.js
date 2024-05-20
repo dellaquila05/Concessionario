@@ -69,3 +69,49 @@ if (sessionStorage.getItem('username')) {
       }
   
   }
+  
+    const getPrelazione = async (idUtente) => {
+    const response = await fetch('/getPrelazioni', {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify({
+            idUtente: idUtente,
+        }),
+    });
+    return await response.json();
+}
+const idUtente = sessionStorage.getItem("username");
+window.onload = async () => {
+  const data = await getPrelazione(idUtente);
+  const tableBody = document.getElementById('prelazioniTableBody');
+
+  data.result.forEach(prelazione => {
+      const row = document.createElement('tr');
+      
+      const cellId = document.createElement('td');
+      cellId.textContent = prelazione.id;
+      row.appendChild(cellId);
+      
+      const cellData = document.createElement('td');
+      cellData.textContent = prelazione.data;
+      row.appendChild(cellData);
+
+      const cellStato = document.createElement('td');
+      cellStato.textContent = prelazione.stato;
+      row.appendChild(cellStato);
+      
+      const cellUsername = document.createElement('td');
+      cellUsername.textContent = prelazione.username;
+      row.appendChild(cellUsername);
+      
+      const cellModello = document.createElement('td');
+      cellModello.textContent = prelazione.modello;
+      row.appendChild(cellModello);
+      
+      const cellMarca = document.createElement('td');
+      cellMarca.textContent = prelazione.marca;
+      row.appendChild(cellMarca);
+
+      tableBody.appendChild(row);
+  });
+};

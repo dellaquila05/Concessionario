@@ -154,11 +154,11 @@ const renderPrelazioni = (data) => {
    data.forEach((element) => {
        document.getElementById(`Accetta_${element.id}`).onclick = async () => {
            await accettaPrelazione(element.id);
-           await renderPrelazioni((await getPrelazione()).result);
+            renderPrelazioni((await getPrelazione()).result);
        }
        document.getElementById(`Rifiuta_${element.id}`).onclick = async () => {
            await rifiutaPrelazione(element.id);
-           await renderPrelazioni((await getPrelazione()).result);
+            renderPrelazioni((await getPrelazione()).result);
        }
    });
 }

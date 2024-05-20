@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin</title>
-    <link href="../img/icona/logo.png" rel="icon" />
+    <link href="../img/icona/logo.png" rel="icon"/>
 
     <link
             href="https://fonts.googleapis.com/css?family=Lexend"
@@ -41,7 +41,7 @@
             src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <link rel="stylesheet" href="../HTML/style.css"/>
+    <link rel="stylesheet" href="../style.css"/>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg">
@@ -55,7 +55,8 @@
                     <button type="button" id="buttonModal" class="nav-link">Crea nuova auto</button>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Autorizza transazione</a>
+                    <button type="button" id="buttonModalPrelazione" class="nav-link" href="#">Autorizza transazione
+                    </button>
                 </li>
             </ul>
             <div class="d-flex">
@@ -128,13 +129,8 @@
                 <!-- Carburante -->
                 <div class="mb-3">
                     <label for="carburante" class="form-label">Carburante</label>
-                    <select class="form-select" id="carburante">
-                        <option value="carburante">Carburante</option>
-                        <option value="Benzina">Benzina</option>
-                        <option value="Hybrid">Hybrid</option>
-                        <option value="Diesel">Diesel</option>
-                        <option value="Gpl">Gpl</option>
-                    </select>                </div>
+                    <input type="text" class="form-control" id="carburante">
+                </div>
                 <!-- Descrizione -->
                 <div class="mb-3">
                     <label for="descrizione" class="form-label">Descrizione</label>
@@ -154,10 +150,8 @@
                     <label for="cambio" class="form-label">Cambio</label>
                     <select class="form-select" id="cambio">
                         <option value="cambio">Cambio</option>
-                        <option value="Manuale">Manuale</option>
-                        <option value="Automatico">Automatico</option>
-                        <option value="Semiutomatico">Semiautomatico</option>
-
+                        <option value="manuale">Manuale</option>
+                        <option value="automatico">Automatico</option>
                     </select>
                 </div>
                 <!-- Allestimento -->
@@ -173,17 +167,17 @@
                 <!-- Disponibilità -->
                 <div class="mb-3">
                     <label for="disponibilita" class="form-label">Disponibilità</label>
-                    <input type="number" class="form-control" id="disponibilita">
+                    <input type="number" min="0" class="form-control" id="disponibilita">
                 </div>
                 <!-- KM -->
                 <div class="mb-3">
                     <label for="km" class="form-label">KM</label>
-                    <input type="number" class="form-control" id="km" min="0">
+                    <input type="number"min="0" class="form-control" id="km">
                 </div>
                 <!-- Prezzo -->
                 <div class="mb-3">
                     <label for="prezzo" class="form-label">Prezzo</label>
-                    <input type="number" class="form-control" id="prezzo" min="0">
+                    <input type="number" min="0" class="form-control" id="prezzo">
                 </div>
                 <!-- Immagini -->
                 <div class="mb-3">
@@ -194,6 +188,20 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
                 <button type="button" class="btn btn-primary" id="salva">Pubblica annuncio</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPrelazione" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Autorizza transazione</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="bodyTransazione">
+
             </div>
         </div>
     </div>
@@ -223,31 +231,6 @@
         <p>Try scrolling the rest of the page to see this option in action.</p>
     </div>
 </div>
-
-<footer class="bg-dark text-white text-center py-3">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 mt-3">
-                <h5 class="mb-3">Contatti</h5>
-                <ul class="list-unstyled">
-                    <li>Telefono: <a href="tel:+123456789">+1 234 56789</a></li>
-                    <li>Email: <a href="mailto:info@concessionario.com">info@concessionario.com</a></li>
-                    <li>Indirizzo: Via del Concessionario, 12345, Città</li>
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h5 class="mb-3">Seguici su</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-                    <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <p class="mt-3">© 2024 Concessionario Auto</p>
-</footer>
-
 <script type="module" src="../src/admin/admin.js"></script>
 </body>
 </html>

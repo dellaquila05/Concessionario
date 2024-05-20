@@ -59,7 +59,7 @@ pagPrefe.onclick = () => {
 
 
 async function getAutoList() {
-    const response = await fetch("/macchina")
+    const response = await fetch("/autonuove")
     return response.json();
 }
 

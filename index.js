@@ -179,18 +179,16 @@ app.delete("/deleteMarca", async (req, res) => {
   conn.close();
 });
 
-// Metodo per eliminare una transazione
-app.delete("/deleteTransazione", async (req, res) => {
-  const requestBody = req.body;
-  const sql =
-    "DELETE FROM prelazione WHERE id = ?";
+// Metodo per accettare le prelazioni
+app.post("/rifiutaPrelazione", async (req, res) => {
+  const id = req.body.id;
   try {
-    const [result] = await conn.promise().query(sql, [requestBody.id]);
-    res.json({ "result": true });
+    const sql = 'UPDATE prelazione SET stato = "annullato" WHERE id = ?';
+    const [result] = await conn.promise().query(sql, [id]);
+    res.json({ result: true });
   } catch (err) {
-    res.json({ "result": false });
+    throw err;
   }
-  conn.close();
 });
 
 
@@ -241,8 +239,11 @@ app.post('/postPrelazione', async (req, res) => {
   let idUtente = req.body.idUtente;
   let stato = "attesa";
   let idMacchina = req.body.idMacchina;
-  let data = DateTime.now().setLocale('it').toFormat('yyyy/MM/dd');
-  const sql = 'INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);';
+  let oggi = new Date();
+let giorno = oggi.getDate();
+let mese = oggi.getMonth() + 1; 
+let anno = oggi.getFullYear();
+const data = anno + '-' + mese + '-' + giorno;  const sql = 'INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);';
   try {
     const [result] = await conn.promise().query(sql, [idUtente, idMacchina, data , stato ]);
     res.send({ "result": true });
@@ -255,16 +256,12 @@ app.post('/postPrelazione', async (req, res) => {
 app.post('/postPreferiti', async (req, res) => {
   let idMacchina = req.body.idMacchina;
   let idUtente = req.body.idUtente;
-  const sql2 = 'SELECT * FROM preferiti WHERE idUtente = ? AND idMacchina = ?';
   const sql = 'INSERT INTO preferiti(idUtente,idMacchina) VALUES(?,?);`';
   try {
-    const [result2] = await conn.promise().query(sql2, [idUtente, idMacchina]);
-    if (result2.length >= 0) {
-      res.send({"result": false, "message" : "Record already exists"})
-    }else{
+    
       const [result] = await conn.promise().query(sql, [idUtente, idMacchina]);
 
-    }
+    
     res.send({ "result": true });
   } catch (err) {
     res.send({ "result": false });
@@ -391,7 +388,16 @@ app.get("/getPrelazioniAdmin", async (req, res) => {
     throw err;
   }
 });
-
+// Metodo per ottenere le transazioni
+app.post("/getPrelazioni", async (req, res) => {
+  const idUtente= req.body.idUtente;
+  try {
+    const [result] = await conn.promise().query("SELECT prelazione.id, prelazione.data,prelazione.stato,utente.username, modello.nome AS modello, marca.nome AS marca FROM prelazione JOIN utente ON prelazione.idUtente = utente.username  JOIN macchina ON prelazione.idMacchina = macchina.idMacchina  JOIN modello ON macchina.idModello = modello.idModello  JOIN marca ON modello.idMarca = marca.idMarca WHERE prelazione.idUtente = ?",[idUtente]    );
+    res.json({ result });
+  } catch (err) {
+    throw err;
+  }
+});
 // Metodo per ottenere le auto preferite
 app.post("/preferiti", async (req, res) => {
   const username = req.body.username;
@@ -494,7 +500,7 @@ app.get("/autousate", async (req, res) => {
 app.post("/accettaPrela", async (req, res) => {
   const id = req.body.id;
   try {
-    const sql = 'UPDATE prelazione SET stato = "accettata" WHERE id = ?';
+    const sql = 'UPDATE prelazione SET stato = "evaso" WHERE id = ?';
     const [result] = await conn.promise().query(sql, [id]);
     const sql2 = "UPDATE macchina SET disponibilità = disponibilità - 1 WHERE idMacchina = (SELECT idMacchina FROM prelazione WHERE id = ?)";
     const [result2] = await conn.promise().query(sql2, [id]);
@@ -510,21 +516,7 @@ app.post("/accettaPrela", async (req, res) => {
   }
 });
 
-// Metodo per inserire le prelazioni
-app.post("/postPrela", async (req, res) => {
-  const idUtente = req.body.idUtente;
-  const stato  = req.body.stato;
-  const idMacchina = req.body.idMacchina;
-  const data = DateTime.now().setLocale('it').toFormat('dd/MM/yyyy');
 
-  try {
-    const sql = "INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);";
-    const [result] = await conn.promise().query(sql, [idUtente,idMacchina,data,stato]);
-    res.json({ result: true });
-  } catch (err) {
-    throw err;
-  }
-});
 
 // Metodo per eliminare un preferito
 app.delete("/deletePreferiti", async (req, res) => {

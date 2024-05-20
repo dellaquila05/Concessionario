@@ -12,7 +12,7 @@ const testo = document.getElementById("testo");
 const destinatario = document.getElementById("destinatario");
 const sendEmail = document.getElementById("sendEmail");
 const prelaziona = document.getElementById("prelaziona");
-
+let auto = [];
 
 buttonModal.onclick =   () => {
   modal2.show();
@@ -94,11 +94,12 @@ function renderAuto(data) {
             console.log(idMacchina);
             sessionStorage.setItem('idMacchina', idMacchina);
         }
-        preferiti.onclick = () => {
+        preferiti.onclick =  ()  => {
             const idMacchina = data[i].idMacchina;
             console.log(idMacchina);
             sessionStorage.setItem('idMacchina', idMacchina);
-            addPrefe(idUser, idMacchina);
+            const ciao = addPrefe(idUser, idMacchina);
+            console.log(ciao);
         }
     }
 }
@@ -278,14 +279,7 @@ applicaFiltri.onclick = async () => {
     }
     renderAuto(autoFiltrered);
 }
-const resetFiltri = document.getElementById("resetFiltri");
-resetFiltri.onclick = () => {
-    renderAuto(auto);
-    minPrezzo.value = "";
-    checkPrezzo.checked = false;
-    checkMarca.checked = false;
-    checkModello.checked = false;
-}
+
 
 
 

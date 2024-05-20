@@ -20,7 +20,7 @@ export const getModello = async () => {
 export const postMarca = async (marca) => {
     const response = await fetch('/postMarca', {
         method: 'POST', headers: {
-            'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token')
+            'Content-Type': 'application/json', 
         }, body: JSON.stringify({
             nome: marca
         }),
@@ -31,7 +31,7 @@ export const postMarca = async (marca) => {
 export const postModello = async (modello, marca) => {
     const response = await fetch('/postModello', {
         method: 'POST', headers: {
-            'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token')
+            'Content-Type': 'application/json', 
         }, body: JSON.stringify({
             nome: modello, idMarca: marca
         }),
@@ -42,7 +42,7 @@ export const postModello = async (modello, marca) => {
 export const postAuto = async (carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello, images) => {
     const response = await fetch('/postAuto', {
         method: 'POST', headers: {
-            'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token')
+            'Content-Type': 'application/json', 
         }, body: JSON.stringify({
             carburante: carburante,
             descrizione: descrizione,
@@ -75,7 +75,7 @@ export const accettaPrelazione = async (id) => {
         method: 'POST', headers: {
             'Content-Type': 'application/json',
         }, body: JSON.stringify({
-            id: Number(id)
+            id: id
         }),
     });
     const data = await response.json();
@@ -84,7 +84,7 @@ export const accettaPrelazione = async (id) => {
 }
 
 export const rifiutaPrelazione = async (id) => {
-    const response = await fetch('/deleteTransazione', {
+    const response = await fetch('/rifiutaPrelazione', {
         method: 'POST', headers: {
             'Content-Type': 'application/json',
         }, body: JSON.stringify({
