@@ -42,7 +42,7 @@
                         <a class="nav-link" href="oldCar.html">Usate</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="cart.html">Preferiti</a>
+                        <a id="pagPrefe" class="nav-link" href="#">Preferiti</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="preempted.html">Prelazionate</a>
@@ -66,7 +66,63 @@
             </div>
         </div>
     </nav>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center position-fixed top-50 start-0 end-0">
+            <button type="button" class="btn btn-primary btn-lg" id="openModal"><svg xmlns="http://www.w3.org/2000/svg"
+                    width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                    <path
+                        d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
+                </svg> </button>
+            <a href="https://www.instagram.com/your_username/" target="_blank" class="btn btn-info btn-lg"
+                data-bs-toggle="offcanvas" data-bs-target="#filtriRicercaOffCanvas">
+                <i class="bi bi-filter"></i>
+            </a>
+        </div>
+    </div>
+ <!-- The Modal -->
+ <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 
+    <!-- Modal content -->
+    <div class="modal-content modal-dialog modal-fullscreen">
+        <div class="modal-header">
+            <div class="col-md-12">
+                <h1 class="modal-title">Contattaci per un'assistenza 24h </h1>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="modal-body col-md-6">
+                    <form>
+                        <div class="form-group mb-3">
+                            <label for="destinatario" class="form-label">Mittente</label>
+                            <input type="email" class="form-control" id="destinatario" name="subject"
+                                placeholder="Enter your mail...">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="oggetto" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="oggetto" name="subject"
+                                placeholder="Enter subject here...">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="testo" class="form-label">Message</label>
+                            <textarea id="testo" name="body" placeholder="Enter your message here..."
+                                class="form-control"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-body col-md-3 offset-lg-0">
+                    <img id="logo" class="rounded-circle img-fluid" src="../img/icona/logo.png" width="300"
+                        height="300" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-secondary close" data-bs-dismiss="modal">Close</button>
+        <button type="button " id="sendEmail" class="btn btn-primary">Send Email</button>
+    </div>
+</div>
     <section class="jumbotron text-center">
         <div class="container">
             <h1 class="display-4">Le tue Prelazioni</h1>

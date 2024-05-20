@@ -61,7 +61,7 @@
                     <a class="nav-link" href="oldCar.html">Usate</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="cart.html">Preferiti</a>
+                    <a id="pagPrefe" class="nav-link" href="#">Preferiti</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="preempted.html">Prelazionate</a>
@@ -83,7 +83,52 @@
                 </div>
         </div>
     </div>
-</nav><div class="container mt-5">
+</nav>
+ <!-- The Modal -->
+ <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+    <!-- Modal content -->
+    <div class="modal-content modal-dialog modal-fullscreen">
+        <div class="modal-header">
+            <div class="col-md-12">
+                <h1 class="modal-title">Contattaci per un'assistenza 24h </h1>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="modal-body col-md-6">
+                    <form>
+                        <div class="form-group mb-3">
+                            <label for="destinatario" class="form-label">Mittente</label>
+                            <input type="email" class="form-control" id="destinatario" name="subject"
+                                placeholder="Enter your mail...">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="oggetto" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="oggetto" name="subject"
+                                placeholder="Enter subject here...">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="testo" class="form-label">Message</label>
+                            <textarea id="testo" name="body" placeholder="Enter your message here..."
+                                class="form-control"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-body col-md-3 offset-lg-0">
+                    <img id="logo" class="rounded-circle img-fluid" src="../img/icona/logo.png" width="300"
+                        height="300" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-secondary close" data-bs-dismiss="modal">Close</button>
+        <button type="button " id="sendEmail" class="btn btn-primary">Send Email</button>
+    </div>
+</div>
+<div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card">

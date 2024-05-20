@@ -9,7 +9,8 @@ const conf = JSON.parse(fs.readFileSync("./conf.json"));
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const conn = mysql.createConnection(conf);
-
+const emailer = require('./email');
+const jsonEmail = JSON.parse(fs.readFileSync("./mail.json"));
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
@@ -18,7 +19,6 @@ app.use(
 );
 app.use("/", express.static(path.join(__dirname, "public")));
 const server = http.createServer(app);
-const io = new Server(server);
 
 function salvaImg(req) {
   // Controlla se i file sono stati caricati
@@ -48,6 +48,28 @@ function salvaImg(req) {
   }
 }
 
+app.post("/inviaEmailAdmin", async (req, res) =>{
+  const oggetto = req.body.oggetto;
+  const testo = req.body.testo;
+  await emailer.send(
+    jsonEmail,
+    "dellaquiladiego@itis-molinari.eu",
+    oggetto,
+    testo  
+  );
+  res.json({result: true});
+});
+app.post("/inviaEmailUtente", async (req, res) =>{
+  const destinatario = req.body.destinatario;
+  const testo = req.body.testo;
+  await emailer.send(
+    jsonEmail,
+    destinatario,
+    "Copia mail inviata al concessionario",
+    testo
+  );
+  res.json({result: true});
+});
 
 app.post("/login", async (req, res) => {
   const username = req.body.username;
@@ -58,7 +80,6 @@ app.post("/login", async (req, res) => {
       const comparison = await bcrypt.compare(password, results[0].password);
       if (comparison) {
         // Controlla se l'utente è un admin
-        console.log(results)
         if (results[0].admin) {
           res.json({ loginAdmin: true });
         } else {
@@ -107,7 +128,6 @@ app.post("/registrazione", async function (req, res) {
             result: ["registra" + true]
           });
         } catch (errore) {
-          console.log(errore);
           res.json({
             result: ["registra" + false]
           });
@@ -163,15 +183,16 @@ app.delete("/deleteMarca", async (req, res) => {
 app.delete("/deleteTransazione", async (req, res) => {
   const requestBody = req.body;
   const sql =
-    "DELETE FROM prelazione WHERE idMacchina = ? AND idUtente = ?";
+    "DELETE FROM prelazione WHERE id = ?";
   try {
-    const [result] = await conn.promise().query(sql, [requestBody.idMacchina, requestBody.idUtente]);
+    const [result] = await conn.promise().query(sql, [requestBody.id]);
     res.json({ "result": true });
   } catch (err) {
     res.json({ "result": false });
   }
   conn.close();
 });
+
 
 // Metodo per eliminare un'immagine
 app.delete("/deleteImmagini", async (req, res) => {
@@ -186,18 +207,7 @@ app.delete("/deleteImmagini", async (req, res) => {
   conn.close();
 });
 
-// Metodo per eliminare un preferito
-app.delete("/deletePreferiti", async (req, res) => {
-  const requestBody = req.body;
-  const sql = 'DELETE FROM preferiti WHERE idMacchina = ? AND idUtente = ?';
-  try {
-    const [result] = await conn.promise().query(sql, [requestBody.idMacchina, requestBody.idUtente]);
-    res.json({ "result": true });
-  } catch (err) {
-    res.json({ "result": false });
-  }
-  conn.close();
-});
+
 
 // Metodo per eliminare un utente
 app.delete("/deleteUtente", async (req, res) => {
@@ -229,9 +239,9 @@ function getBase64Image(path) {
 // Metodo per creare una nuova prelazione
 app.post('/postPrelazione', async (req, res) => {
   let idUtente = req.body.idUtente;
-  let stato = req.body.stato;
+  let stato = "attesa";
   let idMacchina = req.body.idMacchina;
-  let data = new Date().toISOString().slice(0, 10);
+  let data = DateTime.now().setLocale('it').toFormat('yyyy/MM/dd');
   const sql = 'INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);';
   try {
     const [result] = await conn.promise().query(sql, [idUtente, idMacchina, data , stato ]);
@@ -245,9 +255,16 @@ app.post('/postPrelazione', async (req, res) => {
 app.post('/postPreferiti', async (req, res) => {
   let idMacchina = req.body.idMacchina;
   let idUtente = req.body.idUtente;
+  const sql2 = 'SELECT * FROM preferiti WHERE idUtente = ? AND idMacchina = ?';
   const sql = 'INSERT INTO preferiti(idUtente,idMacchina) VALUES(?,?);`';
   try {
-    const [result] = await conn.promise().query(sql, [idUtente, idMacchina]);
+    const [result2] = await conn.promise().query(sql2, [idUtente, idMacchina]);
+    if (result2.length >= 0) {
+      res.send({"result": false, "message" : "Record already exists"})
+    }else{
+      const [result] = await conn.promise().query(sql, [idUtente, idMacchina]);
+
+    }
     res.send({ "result": true });
   } catch (err) {
     res.send({ "result": false });
@@ -300,7 +317,6 @@ app.post('/postAuto', async (req, res) => {
   try {
     const [result] = await conn.promise().query(sql, [carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello]);
     // Successo: l'esecuzione è andata a buon fine
-    console.log(result);
     let sql2 ="SELECT idMacchina FROM macchina ORDER BY mac.idMacchina DESC LIMIT 1" ;
     const [result2] = await conn.promise().query(sql2);
     let idMacchina = result2;
@@ -367,11 +383,9 @@ app.get("/modello", async (req, res) => {
 });
 
 // Metodo per ottenere le transazioni
-app.get("/transazione", async (req, res) => {
+app.get("/getPrelazioniAdmin", async (req, res) => {
   try {
-    const [result] = await conn.promise().query(
-      "SELECT mar.nome, model.nome, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca"
-    );
+    const [result] = await conn.promise().query("SELECT prelazione.id, prelazione.data, utente.username, modello.nome AS modello, marca.nome AS marca FROM prelazione JOIN utente ON prelazione.idUtente = utente.username  JOIN macchina ON prelazione.idMacchina = macchina.idMacchina  JOIN modello ON macchina.idModello = modello.idModello  JOIN marca ON modello.idMarca = marca.idMarca WHERE prelazione.stato = 'attesa'"    );
     res.json({ result });
   } catch (err) {
     throw err;
@@ -379,11 +393,12 @@ app.get("/transazione", async (req, res) => {
 });
 
 // Metodo per ottenere le auto preferite
-app.get("/preferiti", async (req, res) => {
+app.post("/preferiti", async (req, res) => {
+  const username = req.body.username;
   try {
-    const [result] = await conn.promise().query(
-      'SELECT mac.idMacchina, mac.carburante, mac.descrizione, mac.condizione, mac.cambio, mac.allestimento, mac.anno, mac.disponibilità, mac.KM, mac.prezzo, mac.idModello, mar.nome AS nomeMarca, modelloM.nome AS nomeModello   FROM preferiti pref  JOIN macchina mac ON pref.idMacchina = mac.idMacchina JOIN modello modelloM ON mac.idModello = modelloM.idModello  JOIN marca mar ON modelloM.idMarca = mar.idMarca   WHERE pref.idUtente = ?'
-    );
+    const sql = 'SELECT mac.idMacchina, mac.carburante, mac.descrizione, mac.condizione, mac.cambio, mac.allestimento, mac.anno, mac.disponibilità, mac.KM, mac.prezzo, mac.idModello, mar.nome AS nomeMarca, modelloM.nome AS nomeModello   FROM preferiti pref  JOIN macchina mac ON pref.idMacchina = mac.idMacchina JOIN modello modelloM ON mac.idModello = modelloM.idModello  JOIN marca mar ON modelloM.idMarca = mar.idMarca   WHERE pref.idUtente = ?';
+    const [result] = await conn.promise().query(sql, [username])
+    console.log("result prefe: " + result);
     res.json({ result });
   } catch (err) {
     throw err;
@@ -411,7 +426,6 @@ app.get("/macchina", async (req, res) => {
       const sql = "SELECT * FROM immagine WHERE idMacchina = ?";
       const [resultImg] = await conn.promise().query(sql, [row.idMacchina]);
       let arrayImg = [];
-      console.log(resultImg);
       for (let rowImg of resultImg) {
         let path = rowImg.path;
         let base64Image = getBase64Image(path);
@@ -432,12 +446,10 @@ app.get("/autonuove", async (req, res) => {
     const result = await conn.promise().query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Nuovo'"
     );
     let data = [];
-    console.log("result: " + result);
     for (let row of result[0]) {
       const sql = "SELECT * FROM immagine WHERE idMacchina = ?";
       const [resultImg] = await conn.promise().query(sql, [row.idMacchina]);
       let arrayImg = [];
-      console.log(resultImg);
       for (let rowImg of resultImg) {
         let path = rowImg.path;
         let base64Image = getBase64Image(path);
@@ -458,12 +470,10 @@ app.get("/autousate", async (req, res) => {
     const result = await conn.promise().query("SELECT mar.nome AS marca, model.nome AS modello, mac.* FROM macchina mac JOIN modello model ON mac.idModello = model.idModello JOIN marca mar ON model.idMarca = mar.idMarca WHERE mac.condizione = 'Usato'"
     );
     let data = [];
-    console.log("result: " + result);
     for (let row of result[0]) {
       const sql = "SELECT * FROM immagine WHERE idMacchina = ?";
       const [resultImg] = await conn.promise().query(sql, [row.idMacchina]);
       let arrayImg = [];
-      console.log(resultImg);
       for (let rowImg of resultImg) {
         let path = rowImg.path;
         let base64Image = getBase64Image(path);
@@ -478,95 +488,57 @@ app.get("/autousate", async (req, res) => {
   }
 });
 
-// Metodo per ottenere l'elenco delle  chat di un admin
-app.post("/chatAdmin", async (req, res) => {
-  try {
 
-    const [result] = await conn.promise().query("SELECT c.ID,u.username FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente");
-    res.json({ result });
+
+// Metodo per accettare le prelazioni
+app.post("/accettaPrela", async (req, res) => {
+  const id = req.body.id;
+  try {
+    const sql = 'UPDATE prelazione SET stato = "accettata" WHERE id = ?';
+    const [result] = await conn.promise().query(sql, [id]);
+    const sql2 = "UPDATE macchina SET disponibilità = disponibilità - 1 WHERE idMacchina = (SELECT idMacchina FROM prelazione WHERE id = ?)";
+    const [result2] = await conn.promise().query(sql2, [id]);
+    const sql3 = "SELECT disponibilità FROM macchina WHERE idMacchina = (SELECT idMacchina FROM prelazione WHERE id = ?)";
+    const [result3] = await conn.promise().query(sql3, [id]);
+    if(result3.disponibilità === null) {
+      const sql4 = "DELETE FROM macchina WHERE idMacchina = (SELECT idMacchina FROM prelazione WHERE id = ?)";
+      const [result4] = await conn.promise().query(sql4, [id]);
+    }
+    res.json({ result: true });
   } catch (err) {
     throw err;
   }
 });
 
-// Metodo per ottenere tutti i messaggi di una chat
-app.post("/messaggi", async (req, res) => {
-  const chatId = req.body.chatId;
-  try {
-    const sql =
-      "SELECT * FROM Messaggio WHERE Chat_ID = ?";
-    const [result] = await conn.promise().query(sql,[chatId]);
+// Metodo per inserire le prelazioni
+app.post("/postPrela", async (req, res) => {
+  const idUtente = req.body.idUtente;
+  const stato  = req.body.stato;
+  const idMacchina = req.body.idMacchina;
+  const data = DateTime.now().setLocale('it').toFormat('dd/MM/yyyy');
 
-    res.json({ result });
+  try {
+    const sql = "INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);";
+    const [result] = await conn.promise().query(sql, [idUtente,idMacchina,data,stato]);
+    res.json({ result: true });
   } catch (err) {
     throw err;
   }
 });
 
-// Metodo per ottenere la chat di  un utente
-app.post("/chatUtente", async (req, res) => {
-  const username = req.body.username;
+// Metodo per eliminare un preferito
+app.delete("/deletePreferiti", async (req, res) => {
+  const requestBody = req.body;
+  const sql = 'DELETE FROM preferiti WHERE idMacchina = ? AND idUtente = ?';
   try {
-    const  sql =    "SELECT c.ID FROM Chat c JOIN utenteTpsi u ON u.id = c.idUtente WHERE u.username = ?";
-      const [result] = await conn.promise().query(sql,[username]);
-      console.log(result);
-    res.json({ result });
+    const [result] = await conn.promise().query(sql, [requestBody.idMacchina, requestBody.idUtente]);
+    res.json({ "result": true });
   } catch (err) {
-    throw err;
+    res.json({ "result": false });
   }
+  conn.close();
 });
 
-// Metodo per creare una nuova chat
-app.post("/newChat", async (req, res) => {
-  const username = req.body.username;
-  try {
-   
-    const  sql =    "SELECT id FROM utenteTpsi  WHERE username = ?";
-      const [result] = await conn.promise().query(sql,[username]);
-      console.log(result);
-      const  sql2 =    "INSERT INTO Chat(idUtente) values(?)";
-      const [result2] = await conn.promise().query(sql2,result);
-      console.log(result2);
-    res.json({ result2 });
-  } catch (err) {
-    throw err;
-  }
-});
-
-// Metodo per creare un nuovo messaggio
-app.post("/newMessage", async (req, res) => {
-  const username = req.body.username;
-  const chatId = req.body.chatId;
-  const testo = req.body.testo;
-  let day = new Date();
-  let data = day.toLocaleDateString("it-IT"); // Formatta la data in gg/mm/aaaa
-  let ora = day.toLocaleTimeString("it-IT"); // Formatta l'ora in hh:mm:ss
-  try {
-
-    const  sql = "INSERT INTO Messaggio(Data,Mittente,Testo,Ora,Chat_ID) values(?,?,?,?,?)";
-
-    const [result] = await conn.promise().query(sql,[data, username, testo, ora, chatId]);
-    res.json({ result });
-  } catch (err) {
-    throw err;
-  }
-});
-
-
-io.on("connection", (socket) => {
-  socket.on("username", (username) => {
-    let day = new Date();
-    let data = day.toLocaleDateString("it-IT"); // Formatta la data in gg/mm/aaaa
-    let ora = day.toLocaleTimeString("it-IT"); // Formatta l'ora in hh:mm:ss
-    // Crea una nuova stanza di chat per l'utente
-    socket.join(username);
-    socket.on("message", (message) => {
-      const response = data + " " + ora + " " + username + ": " + message;
-      console.log(response);
-      io.to(username).emit("chat", response);
-    });
-  });
-});
 
 
 server.listen(3001, () => {

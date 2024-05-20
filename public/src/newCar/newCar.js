@@ -1,49 +1,72 @@
+const selectMarche = document.getElementById("marcheFiltro");
+const selectModelli = document.getElementById("modelliFiltro");
+const minPrezzo = document.getElementById("prezzoFiltro");
+const applicaFiltri = document.getElementById("applicaFiltri");
+const checkPrezzo = document.getElementById("checkPrezzo");
+const checkMarca = document.getElementById("checkMarca");
+const checkModello = document.getElementById("checkModello");
+const bottoneFiltri = document.getElementById("bottoneFiltri");
+const  modal2 = new bootstrap.Modal('#myModal', {})
+const buttonModal = document.getElementById("openModal");
+const oggetto = document.getElementById("oggetto");
+const testo = document.getElementById("testo");
+const destinatario = document.getElementById("destinatario");
+const sendEmail = document.getElementById("sendEmail");
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");
-let auto = [];
+const pagPrefe = document.getElementById("pagPrefe");
 const loginli = document.getElementById("loginli");
 const registerli = document.getElementById("registerli");
 const logout = document.getElementById("logout");
+let auto = [];
 
-if (sessionStorage.getItem('username')) {
-
-    registerli.classList.remove('visible');
-    registerli.classList.add('hidden');
-    loginli.classList.remove('visible');
-    loginli.classList.add('hidden');
-    logout.classList.remove('hidden');
-    logout.classList.add('visible');
-    
+buttonModal.onclick =   () => {
+  modal2.show();
+ 
+}
+sendEmail.onclick = async () => { 
+  if(oggetto.value !== "" && testo.value !== "" && destinatarios.value !== ""){
+  const admin = await inviaEmailAdmin(oggetto.value, testo.value);
+  const utente = await inviaEmailUtente(destinatario.value, testo.value);
+  if(admin.result === true && utente.result === true){
+    modal2.hide();
   }else{
-  
-    loginli.classList.remove('hidden');
-    loginli.classList.add('visible');
-    registerli.classList.remove('hidden');
-    registerli.classList.add('visible');
-  
+    alert("Email non inviata con successo, si prega di riprovare.");
   }
-  
-  logout.onclick = () => {
-  
-    window.location.href = "./login.html";
-    sessionStorage.removeItem('username');
-  
-  }
+}else{
+  alert("Email non inviata con successo, si prega di compilare tutti i campi richiesti.");
 
-function getAutoNuoveList() {
-  fetch("/autonuove")
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      renderAuto(data.result);
-    })
-    .catch(error => {
-      console.error('Si è verificato un errore:', error);
-    });
+}
 }
 
-window.onload = getAutoNuoveList;
+
+
+pagPrefe.onclick = () => {
+
+    if (sessionStorage.getItem('username')) {
+
+        window.location.href = "./cart.html";
+
+    }else{
+
+        window.location.href = "./login.html";
+
+    }
+
+}
+
+
+
+async function getAutoList() {
+    const response = await fetch("/macchina")
+    return response.json();
+}
+
+window.onload = async () => {
+    auto = (await getAutoList()).result;
+    renderAuto(auto);
+}
 
 const templateCard = `
 <div class="col-md-4 mt-3">
@@ -60,157 +83,258 @@ const templateCard = `
 `;
 
 function renderAuto(data) {
-
-  let html = "";
-
-  for (let i = 0; i < data.length; i++) {
- 
-    let rowHtml =
-      templateCard.replace('{nome}',
-        data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}',
-          data[i].descrizione).replace('{src}', data[i].immagini[0]).replace('{idP}', "bottoneP" + i);
-
-    html += rowHtml;
-  }
-
-  vetrina.innerHTML = html;
-
-  let dettagli;
-
-  let preferiti;
-
-  for (let i = 0; i < data.length; i++) {
-    dettagli = document.getElementById("bottoneD" + i);
-    preferiti = document.getElementById("bottoneP" + i);
-    dettagli.onclick = () => {
-      modal.show();
-      renderModal(data, i);
-      renderAuto(data);
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateCard.replace('{nome}', data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}', data[i].descrizione).replace('{src}', data[i].immagini[0]).replace('{idP}', "bottoneP" + i);
+        html += rowHtml;
     }
-    preferiti.onclick = () => {
- 
-      reinderizza(data[i].idMacchina);
-
+    vetrina.innerHTML = html;
+    let dettagli;
+    let preferiti;
+    for (let i = 0; i < data.length; i++) {
+        dettagli = document.getElementById("bottoneD" + i);
+        preferiti = document.getElementById("bottoneP" + i);
+        dettagli.onclick = () => {
+            modal.show();
+            renderModal(data[i]);
+            renderAuto(data);
+            const idMacchina = data[i].idMacchina;
+            console.log(idMacchina);
+            sessionStorage.setItem('idMacchina', idMacchina);
+        }
+        preferiti.onclick = () => {
+            const idMacchina = data[i].idMacchina;
+            addPrefe(idUser, idMacchina);
+        }
     }
-  }
 }
 
 const templateModal = `
-<div class="auto">
-    <h2>Dettagli dell'auto</h2>
-    <ul>
-        <li><strong>nome:</strong> {nome}</li>
-        <li><strong>prezzo:</strong> {prezzo}</li>
-        <li><strong>disponibilità:</strong> {disponibilita}</li>
-        <li><strong>condizione:</strong> {condizione}</li>
-        <li><strong>KM:</strong> {km}</li>
-        <li><strong>allestimento:</strong> {allestimento}</li>
-        <li><strong>anno:</strong> {anno}</li>
-        <li><strong>cambio:</strong> {cambio}</li>
-        <li><strong>carburante:</strong> {carburante}</li>
-        <li><strong>descrizione:</strong> {descrizione}</li>
-    </ul>
+<div class="container-fluid">
+    <div class="row mt-3 justify-content-center">
+        <div class="col-auto">
+            <h1>{nome}</h1>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-auto">
+            <h2>Prezzo: {prezzo}€</h2>
+        </div>
+        <div class="col-auto">
+            <h2>Disponibilità: {disponibilita}</h2>
+        </div>
+        <div class="col-auto">
+             <h2>Km: {km}</h2>
+        </div>
+         <div class="col-auto">
+              <h2>Anno: {anno}</h2>
+         </div>
+          <div class="col-auto">
+              <h2>Allestimento: {allestimento}</h2>
+          </div>
+          <div class="col-auto">
+              <h2>Cambio: {cambio}</h2>
+          <div>
+    </div>
+    </div>
+    </div>
+    <div class="row mt-3">
+         <h2>Condizione: {condizione}</h2>
+    </div>
+    <div class="row mt-3">
+        <p>{descrizione}</p>
+    </div>    
 </div>
 `;
 
-function renderModal(data, i) {
-
-  let html = "";
-
-    let rowHtml =
-    templateModal.replace('{nome}', data[i].marca + " " + data[i].modello)
-      .replace('{prezzo}', data[i].prezzo)
-      .replace('{disponibilita}', data[i].disponibilita)
-      .replace('{condizione}', data[i].condizione)
-      .replace('{km}', data[i].KM)
-      .replace('{allestimento}', data[i].allestimento)
-      .replace('{anno}', data[i].anno)
-      .replace('{cambio}', data[i].cambio)
-      .replace('{carburante}', data[i].carburante)
-      .replace('{descrizione}', data[i].descrizione);
-
-      html += rowHtml;
-
-  descrizione.innerHTML = html;
-
+function renderModal(data) {
+    console.log(data);
+    let html = "";
+    let rowHtml = templateModal.replace('{nome}', data.marca + " " + data.modello)
+        .replace('{prezzo}', data.prezzo)
+        .replace('{disponibilita}', data.disponibilità)
+        .replace('{condizione}', data.condizione)
+        .replace('{km}', data.KM)
+        .replace('{allestimento}', data.allestimento)
+        .replace('{anno}', data.anno)
+        .replace('{cambio}', data.cambio)
+        .replace('{carburante}', data.carburante)
+        .replace('{descrizione}', data.descrizione);
+    html += rowHtml;
+    descrizione.innerHTML = html;
 }
 
 let log = true;
 
+
 const user = sessionStorage.getItem('username');
 
-function getUtente(user) {
-  fetch("/utente", {
-    method: "POST", 
-    headers: {"content-type": "Application/json"},
-    body: JSON.stringify({
-      username: user
+async function getUtente(user) {
+    const response = await fetch("/utente", {
+        method: "POST", headers: {"content-type": "Application/json"}, body: JSON.stringify({
+            username: user
+        })
     })
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log("utente: ", data);
-      if (data.error) {
+    const data = await response.json()
+    console.log(data.result);
+    if (data.error) {
         log = false;
-      }
-      if (log === false) {
-
+    }
+    if (log === false) {
         console.log("utente non registrato");
+        return log;
 
-      } else {
-
-        console.log("utente registrato");
-
-      return idU = data.username;
-
-      }
-    })
-    .catch(error => {
-      console.error('Si è verificato un errore:', error);
-    });
+    } else {
+        console.log(data.result.username);
+        return data.result.username;
+    }
 }
 
-let idUser = "";
-
-if(sessionStorage.getItem('username')) {
-  
- idUser = getUtente(user);
-
+let idUser;
+if (sessionStorage.getItem('username')) {
+    console.log(await getUtente(user));
+    idUser = await getUtente(user);
+    console.log(idUser);
 }
 
+function addPrefe(user, macchina) {
+    if (log === false) {
+        window.location.href = "./registration.html";
+    } else {
+        fetch("/postPreferiti", {
+            method: "POST",
 
-function addPrefe(user, macchina){
-  if (log === false) {
-    window.location.href = "./registration.html";
-} else {
-  fetch("/postPreferiti", {
-    method: "POST",
+            headers: {"content-type": "Application/json"},
 
-    headers: {"content-type": "Application/json"},
+            body: JSON.stringify({
 
-    body: JSON.stringify({
+                iduser: user,
+                idmacchina: macchina
 
-      iduser: user,
-      idmacchina: macchina
+            })
 
-    })
+        })
+    }
 
-  })
 }
-
-}
-
 
 
 function reinderizza(idMacchina) {
 
-    if(log === false){
-  
-      window.location.href = "./registration.html";
-  
+    if (log === false) {
+
+        window.location.href = "./registration.html";
+
     }
-  
-    console.log("aggiunto ai preferiti");
-    addPrefe(idUser, idMacchina)
-  
-  }
+
+}
+
+if (sessionStorage.getItem('username')) {
+    registerli.classList.remove('visible');
+    registerli.classList.add('hidden');
+    loginli.classList.remove('visible');
+    loginli.classList.add('hidden');
+    logout.classList.remove('hidden');
+    logout.classList.add('visible');
+} else {
+    loginli.classList.remove('hidden');
+    loginli.classList.add('visible');
+    registerli.classList.remove('hidden');
+    registerli.classList.add('visible');
+}
+logout.onclick = () => {
+    window.location.href = "./login.html";
+    sessionStorage.removeItem('username');
+}
+
+
+const getMarche = async () => {
+    const response = await fetch('/marca');
+    return response.json();
+}
+
+const getModello = async () => {
+    const response = await fetch('/modello');
+    return response.json();
+}
+
+bottoneFiltri.onclick = async () => {
+    const modelli = await getModello();
+    const marche = await getMarche();
+    renderModelli(modelli.result);
+    renderMarche(marche.result);
+}
+applicaFiltri.onclick = async () => {
+    let autoFiltrered = auto;
+    if (checkPrezzo.checked) {
+        autoFiltrered = await filtroPrezzoMinimo(autoFiltrered, minPrezzo.value);
+    }
+    if (checkModello.checked) {
+        autoFiltrered = await filtroModello(autoFiltrered, selectModelli.value);
+    }
+    if (checkMarca.checked) {
+        autoFiltrered = await filtroMarca(autoFiltrered, selectMarche.value);
+    }
+    renderAuto(autoFiltrered);
+}
+const resetFiltri = document.getElementById("resetFiltri");
+resetFiltri.onclick = () => {
+    renderAuto(auto);
+    minPrezzo.value = "";
+    checkPrezzo.checked = false;
+    checkMarca.checked = false;
+    checkModello.checked = false;
+}
+const templateSelect = `<option value="{id}">{marca}</option>`;
+
+    registerli.classList.remove('hidden');
+    registerli.classList.add('visible');
+    loginli.classList.remove('hidden');
+    loginli.classList.add('visible');
+    logout.classList.remove('visible');
+    logout.classList.add('hidden');
+
+const renderModelli = (data) => {
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateSelect.replace('{id}', data[i].idModello).replace('{marca}', data[i].marca + " " + data[i].nome);
+        html += rowHtml;
+    }
+    selectModelli.innerHTML = html;
+}
+
+const renderMarche = (data) => {
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateSelect.replace('{id}', data[i].nome).replace('{marca}', data[i].nome);
+        html += rowHtml;
+    }
+    selectMarche.innerHTML = html;
+}
+
+const filtroModello = (data, modello) => {
+    console.log(modello);
+    console.log(data);
+    return data.filter(auto => auto.idModello == modello);
+}
+
+const filtroMarca = (data, marca) => {
+    console.log(marca);
+    console.log(data);
+    return data.filter(auto => auto.marca === marca);
+}
+
+const filtroPrezzoMinimo = (data, prezzoMinimo) => {
+    return data.filter(auto => auto.prezzo >= prezzoMinimo);
+}
+prelaziona.onclick = async () => {
+    if (sessionStorage.getItem('username')) {
+        const username = sessionStorage.getItem('username');
+        const idMacchina = sessionStorage.getItem('idMacchina');
+        const prelazione = await postPrelazione(sessionStorage.getItem('idMacchina'), username);
+        console.log(prelazione);
+        alert("Prelazione effettuata con successo");
+    } else {
+        window.location.href = "./login.html";
+    }
+}

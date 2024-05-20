@@ -5,7 +5,31 @@ const cardPrefe = document.getElementById('preferiti');
 const loginli = document.getElementById("loginli");
 const registerli = document.getElementById("registerli");
 const logout = document.getElementById("logout");
+const  modal2 = new bootstrap.Modal('#myModal', {})
+const buttonModal = document.getElementById("openModal");
+const oggetto = document.getElementById("oggetto");
+const testo = document.getElementById("testo");
+const destinatario = document.getElementById("destinatario");
+const sendEmail = document.getElementById("sendEmail");
 
+buttonModal.onclick =   () => {
+  modal2.show();
+ 
+}
+sendEmail.onclick = async () => { 
+  if(oggetto.value !== "" && testo.value !== "" && destinatarios.value !== ""){
+  const admin = await inviaEmailAdmin(oggetto.value, testo.value);
+  const utente = await inviaEmailUtente(destinatario.value, testo.value);
+  if(admin.result === true && utente.result === true){
+    modal2.hide();
+  }else{
+    alert("Email non inviata con successo, si prega di riprovare.");
+  }
+}else{
+  alert("Email non inviata con successo, si prega di compilare tutti i campi richiesti.");
+
+}
+}
 if (sessionStorage.getItem('username')) {
 
     registerli.classList.remove('visible');
@@ -31,50 +55,41 @@ if (sessionStorage.getItem('username')) {
   
   }
 
-async function getUtente(user) {
-  const response = await fetch("/utente", {
-    method: 'POST',
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username: user
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error('Errore nella richiesta');
-  }
-
-  const data = await response.json();
-  console.log("idUtente", data.result.username);
-
-  const preferiti = await getPreferiti(data.result.username);
-}
-
-const idUser = "";
-
-if(sessionStorage.getItem('username')) {
-  
- idUser = getUtente(user);
-
-}
-
-const getPreferiti =  (username) => {
-    const response =  fetch("/preferiti", {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: {
-            user: username,
-        }
+  async function getUtente(user) {
+    const response = await fetch("/utente", {
+        method: 'POST', headers: {
+            "Content-Type": "application/json"
+        }, body: JSON.stringify({
+            username: user
+        })
     });
-    return  response.json();
-    renderAuto(preferiti);
+
+    if (!response.ok) {
+        throw new Error('Errore nella richiesta');
+    }
+
+    const data = await response.json();
+    return data.result.username;
 }
 
-const data = getPreferiti(idUser);
 
+
+const getPreferiti = async (username) => {
+  const response = await fetch("/preferiti", {
+      method: 'POST', headers: {
+          'Content-Type': 'application/json',
+      }, body: JSON.stringify({
+          idUtente: username,
+      })
+  });
+  if (!response.ok) {
+      throw new Error('Errore nella richiesta');
+  }
+  return await response.json()
+}
+const username = await getUtente(user);
+const preferiti = await getPreferiti(username);
+renderAuto(preferiti.result);
 const templateCard = `
 <div class="col-md-4 mt-3">
   <div class="card">

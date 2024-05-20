@@ -1,83 +1,60 @@
-import { sendMessage, getChatUtente, getMessaggi } from "./servizi.js";
+import {inviaEmailAdmin, inviaEmailUtente} from "./servizi.js";
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");
-const divChat = document.getElementById("divChat");
 const pagPrefe = document.getElementById("pagPrefe");
 const loginli = document.getElementById("loginli");
 const registerli = document.getElementById("registerli");
 const logout = document.getElementById("logout");
-
-if (sessionStorage.getItem('username')) {
-
-    registerli.classList.remove('visible');
-    registerli.classList.add('hidden');
-    loginli.classList.remove('visible');
-    loginli.classList.add('hidden');
-    logout.classList.remove('hidden');
-    logout.classList.add('visible');
-    
-  }else{
-  
-    loginli.classList.remove('hidden');
-    loginli.classList.add('visible');
-    registerli.classList.remove('hidden');
-    registerli.classList.add('visible');
-  
-  }
-  
-  logout.onclick = () => {
-  
-    window.location.href = "./login.html";
-    sessionStorage.removeItem('username');
-  
-  }
-
 let auto = [];
-const messages = [];
-const socket = io();
-const user = sessionStorage.getItem('username');
+const  modal2 = new bootstrap.Modal('#myModal', {})
+const buttonModal = document.getElementById("openModal");
+const oggetto = document.getElementById("oggetto");
+const testo = document.getElementById("testo");
+const destinatario = document.getElementById("destinatario");
+const sendEmail = document.getElementById("sendEmail");
+
+buttonModal.onclick =   () => {
+  modal2.show();
+ 
+}
+sendEmail.onclick = async () => { 
+  if(oggetto.value !== "" && testo.value !== "" && destinatarios.value !== ""){
+  const admin = await inviaEmailAdmin(oggetto.value, testo.value);
+  const utente = await inviaEmailUtente(destinatario.value, testo.value);
+  if(admin.result === true && utente.result === true){
+    modal2.hide();
+  }else{
+    alert("Email non inviata con successo, si prega di riprovare.");
+  }
+}else{
+  alert("Email non inviata con successo, si prega di compilare tutti i campi richiesti.");
+
+}
+}
+
 pagPrefe.onclick = () => {
 
-  if (sessionStorage.getItem('username')) {
+    if (sessionStorage.getItem('username')) {
 
-      window.location.href = "./cart.html";
+        window.location.href = "./cart.html";
 
-  }else{
+    } else {
 
-      window.location.href = "./login.html";
+        window.location.href = "./login.html";
 
-  }
+    }
 
 }
-const templateChat = `
-<div class="container">
-  <ul id="chat" class="list-group">
- 
-  </ul>
-</div>
-<div class="text-center">
-  <input
-    type="text"
-    id="input"
-    class="form-control"
-    placeholder="Enter a message"
-  />
-  <button id="sendButton" type="button" class="btn btn-primary">
-    Send
-  </button>
-</div>`;
-
-const template = '<li class="list-group-item">%MESSAGE</li>';
-
-
 async function getAutoList() {
-  const response = await fetch("/macchina");
-  const data = await response.json();
-  renderAuto(data.result);
+  const response = await fetch("/macchina")
+  return response.json();
 }
 
-window.onload = getAutoList;
+window.onload = async () => {
+  auto = (await getAutoList()).result;
+  renderAuto(auto);
+}
 
 const templateCard = `
 <div class="col-md-4 mt-3">
@@ -94,22 +71,14 @@ const templateCard = `
 `;
 
 function renderAuto(data) {
-
   let html = "";
-
   for (let i = 0; i < data.length; i++) {
-
       let rowHtml = templateCard.replace('{nome}', data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}', data[i].descrizione).replace('{src}', data[i].immagini[0]).replace('{idP}', "bottoneP" + i);
-
       html += rowHtml;
   }
-
   vetrina.innerHTML = html;
-
   let dettagli;
-
   let preferiti;
-
   for (let i = 0; i < data.length; i++) {
       dettagli = document.getElementById("bottoneD" + i);
       preferiti = document.getElementById("bottoneP" + i);
@@ -117,6 +86,9 @@ function renderAuto(data) {
           modal.show();
           renderModal(data[i]);
           renderAuto(data);
+          const idMacchina = data[i].idMacchina;
+          console.log(idMacchina);
+          sessionStorage.setItem('idMacchina', idMacchina);
       }
       preferiti.onclick = () => {
           const idMacchina = data[i].idMacchina;
@@ -183,110 +155,175 @@ function renderModal(data) {
 let log = true;
 
 
+const user = sessionStorage.getItem('username');
 
 async function getUtente(user) {
-  const response = await fetch("/utente", {
-    method: "POST", headers: { "content-type": "Application/json" },
-    body: JSON.stringify({
-      username: user
+    const response = await fetch("/utente", {
+        method: "POST", headers: {"content-type": "Application/json"}, body: JSON.stringify({
+            username: user
+        })
     })
-  })
-  const data = await response.json()
-  if (data.error) {
-    log = false;
-  }
-  if (log === false) {
-    console.log("utente non registrato");
-    return log;
-  } else {
-    return data.result.username;
-  }
-}
-
-const renderMessageVecchi = async (chatId) => {
-  const messaggi = await getMessaggi(chatId);
-  let html = "";
-  for (let i = 0; i < messaggi.length; i++) {
-    const response = messaggi[i].Data + " " + messaggi[i].Ora + " Mittente: " + messaggi[i].Mittente;
-    const row = template.replace("%MESSAGE", response);
-    html += row;
-  }
-  divChat.innerHTML = html;
-  window.scrollTo(0, document.body.scrollHeight);
-
-}
-
-const renderMessage = () => {
-  let html = "";
-  messages.forEach((message) => {
-    const row = template.replace("%MESSAGE", message);
-    html += row;
-  });
-  divChat.innerHTML = html;
-  window.scrollTo(0, document.body.scrollHeight);
-};
-
-if (sessionStorage.getItem('username')) {
-  const username = await getUtente(user);
-  socket.emit("username", username);
-  const  datiChat = await getChatUtente(username);
-  console.log(datiChat.ID);
-  let chatId = datiChat.ID;
-  await renderMessageVecchi(chatId);
-  divChat.innerHTML = templateChat;
-  socket.on("chat", async (message) => {
-    messages.push(message);
-    renderMessage();
-  });
-  const sendButton = document.getElementById("sendButton");
-  sendButton.onclick = () => {
-    if (input.value.trim() !== "") {
-      socket.emit("message", input.value);
-      sendMessage(username, chatId, input.value);
-      input.value = "";
-    } else {
-      alert("You can't send empty message.");
+    const data = await response.json()
+    console.log(data.result);
+    if (data.error) {
+        log = false;
     }
-  };
+    if (log === false) {
+        console.log("utente non registrato");
+        return log;
+
+    } else {
+        console.log(data.result.username);
+        return data.result.username;
+    }
 }
 
-
+let idUser;
+if (sessionStorage.getItem('username')) {
+    console.log(await getUtente(user));
+    idUser = await getUtente(user);
+    console.log(idUser);
+}
 
 function addPrefe(user, macchina) {
-
-  if (log === false) {
-
-    window.location.href = "./registration.html";
-
-  } else {
-
-    console.log("aggiunto ai preferiti");
-
-    fetch("/preferiti", {
-      method: "POST",
-
-      headers: { "content-type": "Application/json" },
-
-      body: JSON.stringify({
-
-        iduser: user,
-        idmacchina: macchina
-
-      })
-
-    }).then(response => {
-      return response.json();
-    })
-      .then(data => {
-                console.log("aggiunto ai preferiti");
-                if(data.result === false){
-                  window.location.href = "./login.html";
-              }
-      })
-      .catch(error => {
-        console.error('Si è verificato un errore:', error);
-      });
-  }
+    let urlPrefe = '/postPreferiti';
+    if (log === false) {
+        window.location.href = "./registration.html";
+    } else {
+        fetch(urlPrefe, {
+            method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({
+                idUtente: String(user), idMacchina: String(macchina)
+            })
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                if (data.result === false) {
+                    window.location.href = "./login.html";
+                }
+            })
+            .catch(error => {
+                console.error('Si è verificato un errore:', error);
+            });
+    }
 
 }
+if (sessionStorage.getItem('username')) {
+    registerli.classList.remove('visible');
+    registerli.classList.add('hidden');
+    loginli.classList.remove('visible');
+    loginli.classList.add('hidden');
+    logout.classList.remove('hidden');
+    logout.classList.add('visible');
+} else {
+    loginli.classList.remove('hidden');
+    loginli.classList.add('visible');
+    registerli.classList.remove('hidden');
+    registerli.classList.add('visible');
+}
+logout.onclick = () => {
+    window.location.href = "./login.html";
+    sessionStorage.removeItem('username');
+}
 
+const selectMarche = document.getElementById("marcheFiltro");
+const selectModelli = document.getElementById("modelliFiltro");
+const minPrezzo = document.getElementById("prezzoFiltro");
+const applicaFiltri = document.getElementById("applicaFiltri");
+const checkPrezzo = document.getElementById("checkPrezzo");
+const checkMarca = document.getElementById("checkMarca");
+const checkModello = document.getElementById("checkModello");
+const bottoneFiltri = document.getElementById("bottoneFiltri");
+const getMarche = async () => {
+    const response = await fetch('/marca');
+    return response.json();
+}
+
+const getModello = async () => {
+    const response = await fetch('/modello');
+    return response.json();
+}
+
+bottoneFiltri.onclick = async () => {
+    const modelli = await getModello();
+    const marche = await getMarche();
+    renderModelli(modelli.result);
+    renderMarche(marche.result);
+}
+applicaFiltri.onclick = async () => {
+    let autoFiltrered = auto;
+    if (checkPrezzo.checked) {
+        autoFiltrered = await filtroPrezzoMinimo(autoFiltrered, minPrezzo.value);
+    }
+    if (checkModello.checked) {
+        autoFiltrered = await filtroModello(autoFiltrered, selectModelli.value);
+    }
+    if (checkMarca.checked) {
+        autoFiltrered = await filtroMarca(autoFiltrered, selectMarche.value);
+    }
+    renderAuto(autoFiltrered);
+}
+const resetFiltri = document.getElementById("resetFiltri");
+resetFiltri.onclick = () => {
+    renderAuto(auto);
+    minPrezzo.value = "";
+    checkPrezzo.checked = false;
+    checkMarca.checked = false;
+    checkModello.checked = false;
+}
+const templateSelect = `<option value="{id}">{marca}</option>`;
+
+    registerli.classList.remove('hidden');
+    registerli.classList.add('visible');
+    loginli.classList.remove('hidden');
+    loginli.classList.add('visible');
+    logout.classList.remove('visible');
+    logout.classList.add('hidden');
+
+const renderModelli = (data) => {
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateSelect.replace('{id}', data[i].idModello).replace('{marca}', data[i].marca + " " + data[i].nome);
+        html += rowHtml;
+    }
+    selectModelli.innerHTML = html;
+}
+
+const renderMarche = (data) => {
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateSelect.replace('{id}', data[i].nome).replace('{marca}', data[i].nome);
+        html += rowHtml;
+    }
+    selectMarche.innerHTML = html;
+}
+
+const filtroModello = (data, modello) => {
+    console.log(modello);
+    console.log(data);
+    return data.filter(auto => auto.idModello == modello);
+}
+
+const filtroMarca = (data, marca) => {
+    console.log(marca);
+    console.log(data);
+    return data.filter(auto => auto.marca === marca);
+}
+
+const filtroPrezzoMinimo = (data, prezzoMinimo) => {
+    return data.filter(auto => auto.prezzo >= prezzoMinimo);
+}
+
+prelaziona.onclick = async () => {
+  if (sessionStorage.getItem('username')) {
+      const username = sessionStorage.getItem('username');
+      const idMacchina = sessionStorage.getItem('idMacchina');
+      const prelazione = await postPrelazione(sessionStorage.getItem('idMacchina'), username);
+      console.log(prelazione);
+      alert("Prelazione effettuata con successo");
+  } else {
+      window.location.href = "./login.html";
+  }
+}

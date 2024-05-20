@@ -1,79 +1,60 @@
 <!DOCTYPE html>
 <html lang="it" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="../img/icona/logo.png" rel="icon" />
-    <script src="/socket.io/socket.io.js"></script>
 
-    <link
-            href="https://fonts.googleapis.com/css?family=Lexend"
-            rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css?family=Lexend" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.0/font/bootstrap-icons.css">
 
-    <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-    />
-    <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link
-            href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@900&display=swap"
-            rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@900&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://cdn.jsdelivr.net/gh/exacti/floating-labels@latest/floating-labels.min.css"
-            media="screen"
-    />
-    <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-    />
-    <script
-            src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-    ></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/gh/exacti/floating-labels@latest/floating-labels.min.css" media="screen" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <link rel="stylesheet" href="../HTML/style.css"/>
+    <link rel="stylesheet" href="../HTML/style.css" />
 </head>
+
 <body>
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#vetrina">
-            <img src="../img/icona/logo.png" alt="Logo" width="80">
-        </a>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="home.html">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="newCar.html">Nuove</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="oldCar.html">Usate</a>
-                </li>
-                <li class="nav-item">
-                    <a id="pagPrefe" class="nav-link" href="#">Preferiti</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="preempted.html">Prelazionate</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="contacts.html">Contacts</a>
-                </li>
-                 </ul>
-                 <div class="d-flex">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#vetrina">
+                <img src="../img/icona/logo.png" alt="Logo" width="80">
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="home.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="newCar.html">Nuove</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="oldCar.html">Usate</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="pagPrefe" class="nav-link" href="#">Preferiti</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="preempted.html">Prelazionate</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contacts.html">Contacts</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li id="loginli" class="nav-item visible"> 
+                        <li id="loginli" class="nav-item visible">
                             <a class="nav-link" href="login.html">Login</a>
                         </li>
                         <li id="registerli" class="nav-item visible">
@@ -82,91 +63,187 @@
                         <li id="logout" type="button" class="nav-item hidden">Logout</li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center position-fixed top-50 start-0 end-0">
+            <button type="button" class="btn btn-primary btn-lg" id="openModal"><svg xmlns="http://www.w3.org/2000/svg"
+                    width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                    <path
+                        d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
+                </svg> </button>
+            <a href="https://www.instagram.com/your_username/" target="_blank" class="btn btn-info btn-lg"
+                data-bs-toggle="offcanvas" data-bs-target="#filtriRicercaOffCanvas">
+                <i class="bi bi-filter"></i>
+            </a>
         </div>
     </div>
-</nav>
-<a href="https://www.instagram.com/your_username/" target="_blank"
-   class="btn btn-info position-fixed top-50 end-0 translate-middle-y btn-lg" data-bs-toggle="offcanvas"
-   data-bs-target="#filtriRicercaOffCanvas">
-    <i class="bi bi-filter"></i>
-</a>
-<a href="https://www.instagram.com/your_username/" target="_blank"
-   class="btn btn-success position-fixed top-50 start-0 translate-middle-y btn-lg" data-bs-toggle="offcanvas"
-   data-bs-target="#chatOffCanvas">
-    <i class="bi bi-filter"></i>
-</a>
-<section class="jumbotron text-center">
-    <div class="container">
-        <h1 class="display-4">Benvenuti al Concessionario Auto</h1>
-        <p class="lead">La tua destinazione per trovare la tua prossima auto.</p>
-    </div>
-</section>
 
-<div class="offcanvas offcanvas-end" tabindex="-1" id="filtriRicercaOffCanvas"
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+        <!-- Modal content -->
+        <div class="modal-content modal-dialog modal-fullscreen">
+            <div class="modal-header">
+                <div class="col-md-12">
+                    <h1 class="modal-title">Contattaci per un'assistenza 24h </h1>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="modal-body col-md-6">
+                        <form>
+                            <div class="form-group mb-3">
+                                <label for="destinatario" class="form-label">Mittente</label>
+                                <input type="email" class="form-control" id="destinatario" name="subject"
+                                    placeholder="Enter your mail...">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="oggetto" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="oggetto" name="subject"
+                                    placeholder="Enter subject here...">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="testo" class="form-label">Message</label>
+                                <textarea id="testo" name="body" placeholder="Enter your message here..."
+                                    class="form-control"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-body col-md-3 offset-lg-0">
+                        <img id="logo" class="rounded-circle img-fluid" src="../img/icona/logo.png" width="300"
+                            height="300" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary close" data-bs-dismiss="modal">Close</button>
+            <button type="button " id="sendEmail" class="btn btn-primary">Send Email</button>
+        </div>
+    </div>
+
+    </div>
+
+
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1 class="display-4">Benvenuti al Concessionario Auto</h1>
+            <p class="lead">La tua destinazione per trovare la tua prossima auto.</p>
+        </div>
+    </section>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="filtriRicercaOffCanvas"
      aria-labelledby="offcanvasWithBothOptionsLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdrop with scrolling</h5>
+        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Filtri di ricerca</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <p>Try scrolling the rest of the page to see this option in action.</p>
+        <div class="row mt-3">
+            <div class="col">
+                <label for="marcheFiltro" class="form-label">Scegli la marca da cercare</label>
+                <select id="marcheFiltro" class="form-select"></select>
+            </div>
+            <div class="col">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="checkMarca">
+                    <label class="form-check-label" for="checkMarca">
+                        Aggiungi filtro
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <label for="modelliFiltro" class="form-label">Scegli il modello da cercare</label>
+                <select id="modelliFiltro" class="form-select"></select>
+            </div>
+            <div class="col">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="checkModello">
+                    <label class="form-check-label" for="checkModello">
+                        Aggiungi filtro
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <label for="prezzoFiltro" class="form-label">Inserisci il prezzo minimo della ricerca</label>
+                <input type="number" class="form-control" min="0" id="prezzoFiltro">
+            </div>
+            <div class="col">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="checkPrezzo">
+                    <label class="form-check-label" for="checkPrezzo">
+                        Aggiungi filtro
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="offcanvas-footer">
+        <button class="btn btn-primary" id="applicaFiltri" type="button">Applica filtri</button>
+        <button class="btn btn-danger" id="resetFiltri" type="button">Applica filtri</button>
     </div>
 </div>
 
-<div class="offcanvas offcanvas-start" tabindex="-1" id="chatOffCanvas"
-     aria-labelledby="offcanvasWithBothOptionsLabel2">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel2">Chat d'assistenza:</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body" id="divChat">
-    </div>
-</div>
 
-<div class="modal fade" id="ModalDett" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Dettagli Auto</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-      <div id="descrizione" class="modal-content">
-
-      </div>
-    </div>
-  </div>
-
-<section class="container">
-    <h2 class="text-center mb-4">Auto in vetrina</h2>
-    <div class="row" id="vetrina">
-        
-    </div>
-    <br>
-</section>
-
-<footer class="bg-dark text-white text-center py-3">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 mt-3">
-                <h5 class="mb-3">Contatti</h5>
-                <ul class="list-unstyled">
-                    <li>Telefono: <a href="tel:+123456789">+1 234 56789</a></li>
-                    <li>Email: <a href="mailto:info@concessionario.com">info@concessionario.com</a></li>
-                    <li>Indirizzo: Via del Concessionario, 12345, Città</li>
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h5 class="mb-3">Seguici su</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-                    <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
-                </ul>
+    <div class="modal fade" id="ModalDett" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Dettagli Auto</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="descrizione">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-lg" id="prelaziona">Prelaziona</button>
+                </div>
             </div>
         </div>
     </div>
-    <p class="mt-3">© 2024 Concessionario Auto</p>
-</footer>
 
-<script type="module" src="../src/home/home.js"></script>
+    <section class="container">
+        <h2 class="text-center mb-4">Auto in vetrina</h2>
+        <div class="row" id="vetrina">
+
+        </div>
+        <br>
+    </section>
+
+    <footer class="bg-dark text-white text-center py-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mt-3">
+                    <h5 class="mb-3">Contatti</h5>
+                    <ul class="list-unstyled">
+                        <li>Telefono: <a href="tel:+123456789">+1 234 56789</a></li>
+                        <li>Email: <a href="mailto:info@concessionario.com">dellaquiladiego@itis-molinari.eu</a></li>
+                        <li>Indirizzo: Via del Mlaibu, 12345, Milano</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="mb-3">Seguici su</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <p class="mt-3">© 2024 Concessionario Auto</p>
+    </footer>
+
+    <script type="module" src="../src/home/home.js"></script>
 </body>
+
 </html>

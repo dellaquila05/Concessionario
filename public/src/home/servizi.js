@@ -1,12 +1,13 @@
-export async function getMessaggi(chatId) {
+export async function inviaEmailAdmin(oggetto, testo ) {
     try {
-      const response = await fetch('/messaggi', {
+      const response = await fetch('/inviaEmailAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          chatId: chatId
+          oggetto: oggetto,
+          testo: testo
         }),
       });
   
@@ -16,16 +17,16 @@ export async function getMessaggi(chatId) {
       console.error('Error:', error);
     }
   }
-  
-  export async function getChatUtente(username) {
+  export async function inviaEmailUtente(destinatario, testo ) {
     try {
-      const response = await fetch('/chatUtente', {
+      const response = await fetch('/inviaEmailUtente', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: username
+            destinatario: destinatario,
+          testo: testo
         }),
       });
   
@@ -35,23 +36,3 @@ export async function getMessaggi(chatId) {
       console.error('Error:', error);
     }
   }
-
-export function sendMessage(username,chatId,testo) {
-    fetch('/newMessage', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username,
-        chatId: chatId,
-        testo: testo
-      }),
-    })
-    .then(response => response.json())
-    .then(data => console.log('Success:', data))
-    .catch(error => console.error('Error:', error));
-  }
-
-  
-  
