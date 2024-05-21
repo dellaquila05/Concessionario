@@ -1,7 +1,8 @@
+import {postPrelazione ,inviaEmailAdmin, inviaEmailUtente} from "./servizi.js";
+
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");
-const pagPrefe = document.getElementById("pagPrefe");
 const loginli = document.getElementById("loginli");
 const registerli = document.getElementById("registerli");
 const logout = document.getElementById("logout");
@@ -19,7 +20,7 @@ buttonModal.onclick =   () => {
  
 }
 sendEmail.onclick = async () => { 
-  if(oggetto.value !== "" && testo.value !== "" && destinatarios.value !== ""){
+  if(oggetto.value !== "" && testo.value !== "" && destinatario.value !== ""){
   const admin = await inviaEmailAdmin(oggetto.value, testo.value);
   const utente = await inviaEmailUtente(destinatario.value, testo.value);
   if(admin.result === true && utente.result === true){
@@ -35,19 +36,7 @@ sendEmail.onclick = async () => {
 
 
 
-pagPrefe.onclick = () => {
 
-    if (sessionStorage.getItem('username')) {
-
-        window.location.href = "./cart.html";
-
-    }else{
-
-        window.location.href = "./login.html";
-
-    }
-
-}
 
 
 async function getAutoList() {
@@ -94,12 +83,16 @@ function renderAuto(data) {
             console.log(idMacchina);
             sessionStorage.setItem('idMacchina', idMacchina);
         }
-        preferiti.onclick =  ()  => {
-            const idMacchina = data[i].idMacchina;
-            console.log(idMacchina);
-            sessionStorage.setItem('idMacchina', idMacchina);
-            const ciao = addPrefe(idUser, idMacchina);
-            console.log(ciao);
+        preferiti.onclick = async ()  => {
+            if (log === false ){
+                window.location.href = './login.html';
+            }else{
+                const idMacchina = data[i].idMacchina;
+                console.log(idMacchina);
+                sessionStorage.setItem('idMacchina', idMacchina);
+                const idUser = sessionStorage.getItem('username');
+                await  addPrefe(idUser, idMacchina);
+            }
         }
     }
 }
@@ -192,33 +185,29 @@ if (sessionStorage.getItem('username')) {
     console.log(idUser);
 }
 
-function addPrefe(user, macchina) {
-    if (log === false) {
-        window.location.href = "./registration.html";
-    } else {
+async function addPrefe(user, macchina) {
 
-        fetch("/postPreferiti", {
+       await fetch("/postPreferiti", {
             method: "POST",
 
             headers: {"content-type": "Application/json"},
 
             body: JSON.stringify({
 
-                iduser: user, idmacchina: macchina
+                idUser: user, idMacchina: macchina
 
             })
 
         })
 
-    }
 }
 
 
-function reinderizza(idMacchina) {
+function reinderizza() {
 
     if (log === false) {
 
-        window.location.href = "./registration.html";
+        window.location.href = "./login.html";
 
     }
 
@@ -323,7 +312,7 @@ prelaziona.onclick = async () => {
     if (sessionStorage.getItem('username')) {
         const username = sessionStorage.getItem('username');
         const idMacchina = sessionStorage.getItem('idMacchina');
-        const prelazione = await postPrelazione(sessionStorage.getItem('idMacchina'), username);
+        const prelazione = await postPrelazione(idMacchina, username);
         console.log(prelazione);
         alert("Prelazione effettuata con successo");
     } else {
@@ -331,16 +320,6 @@ prelaziona.onclick = async () => {
     }
 }
 
-const postPrelazione = async (idMacchina, username) => {
-    const response = await fetch('/postPrelazione', {
-        method: 'POST', headers: {
-            'Content-Type': 'application/json'
-        }, body: JSON.stringify({
-            idMacchina: idMacchina, idUtente: username
-        })
-    });
-    return response.json();
-}
 
 const renderModelli = (data) => {
     let html = "";

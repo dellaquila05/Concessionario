@@ -1,3 +1,4 @@
+import {postPrelazione ,inviaEmailAdmin, inviaEmailUtente} from "./servizi.js";
 const selectMarche = document.getElementById("marcheFiltro");
 const selectModelli = document.getElementById("modelliFiltro");
 const minPrezzo = document.getElementById("prezzoFiltro");
@@ -15,7 +16,6 @@ const sendEmail = document.getElementById("sendEmail");
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");
-const pagPrefe = document.getElementById("pagPrefe");
 const loginli = document.getElementById("loginli");
 const registerli = document.getElementById("registerli");
 const logout = document.getElementById("logout");
@@ -26,7 +26,7 @@ buttonModal.onclick =   () => {
  
 }
 sendEmail.onclick = async () => { 
-  if(oggetto.value !== "" && testo.value !== "" && destinatarios.value !== ""){
+  if(oggetto.value !== "" && testo.value !== "" && destinatario.value !== ""){
   const admin = await inviaEmailAdmin(oggetto.value, testo.value);
   const utente = await inviaEmailUtente(destinatario.value, testo.value);
   if(admin.result === true && utente.result === true){
@@ -42,19 +42,7 @@ sendEmail.onclick = async () => {
 
 
 
-pagPrefe.onclick = () => {
 
-    if (sessionStorage.getItem('username')) {
-
-        window.location.href = "./cart.html";
-
-    }else{
-
-        window.location.href = "./login.html";
-
-    }
-
-}
 
 
 
@@ -331,7 +319,7 @@ prelaziona.onclick = async () => {
     if (sessionStorage.getItem('username')) {
         const username = sessionStorage.getItem('username');
         const idMacchina = sessionStorage.getItem('idMacchina');
-        const prelazione = await postPrelazione(sessionStorage.getItem('idMacchina'), username);
+        const prelazione = await postPrelazione(idMacchina, username);
         console.log(prelazione);
         alert("Prelazione effettuata con successo");
     } else {

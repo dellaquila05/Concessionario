@@ -55,23 +55,6 @@ if (sessionStorage.getItem('username')) {
   
   }
 
-  async function getUtente(user) {
-    const response = await fetch("/utente", {
-        method: 'POST', headers: {
-            "Content-Type": "application/json"
-        }, body: JSON.stringify({
-            username: user
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error('Errore nella richiesta');
-    }
-
-    const data = await response.json();
-    return data.result.username;
-}
-
 
 
 const getPreferiti = async (username) => {
@@ -79,17 +62,36 @@ const getPreferiti = async (username) => {
       method: 'POST', headers: {
           'Content-Type': 'application/json',
       }, body: JSON.stringify({
-          idUtente: username,
+          username: username,
       })
   });
   if (!response.ok) {
       throw new Error('Errore nella richiesta');
   }
-  return await response.json()
+  let data = await response.json();
+  return data;
 }
-const username = await getUtente(user);
-const preferiti = await getPreferiti(username);
-renderAuto(preferiti.result);
+window.onload = async () => {
+  if(sessionStorage.getItem('username')) {
+    const username = sessionStorage.getItem('username');
+    console.log("username: " + username);
+    try {
+      const preferiti = await getPreferiti(username);
+      if (preferiti.result && Array.isArray(preferiti.result)) {
+        renderAuto(preferiti.result);
+        console.log("preferiti: " + JSON.stringify(preferiti.result, null, 2));
+      } else {
+        console.error("Nessun risultato trovato per i preferiti");
+      }
+    } catch (error) {
+      console.error("Errore nel recupero dei preferiti:", error);
+    }
+  } else {
+    window.location.href = "./login.html";
+  }
+};
+
+
 const templateCard = `
 <div class="col-md-4 mt-3">
   <div class="card">
@@ -105,14 +107,16 @@ const templateCard = `
 `;
 
 function renderAuto(data) {
-  console.log(data);
+  if (!data || data.length === 0) {
+    console.error("L'array dei preferiti è vuoto o non definito.");
+    return;
+  }else{
   let html = "";
   for (let i = 0; i < data.length; i++) {
       let rowHtml = templateCard.replace('{nome}', data[i].nomeMarca + " " + data[i].nomeModello)
           .replace('{idD}', "bottoneD" + i)
           .replace('{descrizione}', data[i].descrizione)
-          .replace('{idR}', "bottoneR" + i)
-          .replace('{src}', data[i].immagini[i]);
+          .replace('{idR}', "bottoneR" + i);
       html += rowHtml;
   }
   cardPrefe.innerHTML = html;
@@ -125,12 +129,14 @@ function renderAuto(data) {
           renderAuto(data);
       }
       rimuovi.onclick = async () => {
-          const idMacchina = data[i].idMacchina;
+        const username = sessionStorage.getItem('username');
+        const idMacchina = data[i].idMacchina;
           await rimPrefe(idMacchina, username);
           const val = await getPreferiti(username);
           renderAuto(val.result);
       }
   }
+}
 }
 
 async function rimPrefe(macchina, username) {

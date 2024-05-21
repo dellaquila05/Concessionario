@@ -10,7 +10,7 @@ submit.onclick = async () => {
   if (result.loginAdmin) {
     window.location.href = './admin.html'; 
   } else if (result.loginUtente) {
-    window.location.href = './home.html'; 
+    window.location.href = document.referrer || './home.html'; 
     sessionStorage.setItem('username', user.value);
   } else {
     alert('Login fallito. Controlla username e password.');

@@ -48,24 +48,3 @@ export  const postPrelazione = async (idUtente,idMacchina) => {
     });
     return await response.json();
 }
-
-export async function addPrefe(user, macchina) {  
-  try {
-      const response = await fetch("/postPreferiti", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({
-              idUtente: user,
-              idMacchina: macchina
-          })
-      });
-
-      let data = await response.json();
-      console.log(data);
-
-      return data;
-
-  } catch (error) {
-      console.error('Si è verificato un errore:', error);
-  }
-}

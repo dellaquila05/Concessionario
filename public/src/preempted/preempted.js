@@ -55,20 +55,7 @@ if (sessionStorage.getItem('username')) {
     logout.classList.remove('visible');
     logout.classList.add('hidden');
   }
-  const pagPrefe = document.getElementById("pagPrefe");
-  pagPrefe.onclick = () => {
   
-      if (sessionStorage.getItem('username')) {
-  
-          window.location.href = "./cart.html";
-  
-      }else{
-  
-          window.location.href = "./login.html";
-  
-      }
-  
-  }
   
     const getPrelazione = async (idUtente) => {
     const response = await fetch('/getPrelazioni', {

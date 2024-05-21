@@ -1,8 +1,7 @@
-import {postPrelazione ,inviaEmailAdmin, inviaEmailUtente} from "./servizi.js";
+import {addPrefe, postPrelazione ,inviaEmailAdmin, inviaEmailUtente} from "./servizi.js";
 const vetrina = document.getElementById("vetrina");
 const modal = new bootstrap.Modal("#ModalDett", {});
 const descrizione = document.getElementById("descrizione");
-const pagPrefe = document.getElementById("pagPrefe");
 const loginli = document.getElementById("loginli");
 const registerli = document.getElementById("registerli");
 const logout = document.getElementById("logout");
@@ -19,7 +18,7 @@ buttonModal.onclick =   () => {
  
 }
 sendEmail.onclick = async () => { 
-  if(oggetto.value !== "" && testo.value !== "" && destinatarios.value !== ""){
+  if(oggetto.value !== "" && testo.value !== "" && destinatario.value !== ""){
   const admin = await inviaEmailAdmin(oggetto.value, testo.value);
   const utente = await inviaEmailUtente(destinatario.value, testo.value);
   if(admin.result === true && utente.result === true){
@@ -33,19 +32,7 @@ sendEmail.onclick = async () => {
 }
 }
 
-pagPrefe.onclick = () => {
 
-    if (sessionStorage.getItem('username')) {
-
-        window.location.href = "./cart.html";
-
-    } else {
-
-        window.location.href = "./login.html";
-
-    }
-
-}
 async function getAutoList() {
   const response = await fetch("/macchina")
   return response.json();
@@ -90,9 +77,14 @@ function renderAuto(data) {
           console.log(idMacchina);
           sessionStorage.setItem('idMacchina', idMacchina);
       }
-      preferiti.onclick = () => {
-          const idMacchina = data[i].idMacchina;
-          addPrefe(idUser, idMacchina);
+      preferiti.onclick = async () => {
+          if (sessionStorage.getItem('username')) {
+            const username = sessionStorage.getItem('username');
+            const idMacchina = sessionStorage.getItem('idMacchina');
+            await addPrefe( username, idMacchina);
+        } else {
+            window.location.href = "./login.html";
+        }
       }
   }
 }
@@ -185,31 +177,10 @@ if (sessionStorage.getItem('username')) {
     console.log(idUser);
 }
 
-function addPrefe(user, macchina) {
-    let urlPrefe = '/postPreferiti';
-    if (log === false) {
-        window.location.href = "./registration.html";
-    } else {
-        fetch(urlPrefe, {
-            method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({
-                idUtente: String(user), idMacchina: String(macchina)
-            })
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                if (data.result === false) {
-                    window.location.href = "./login.html";
-                }
-            })
-            .catch(error => {
-                console.error('Si è verificato un errore:', error);
-            });
-    }
 
-}
+
+
+
 if (sessionStorage.getItem('username')) {
     registerli.classList.remove('visible');
     registerli.classList.add('hidden');
