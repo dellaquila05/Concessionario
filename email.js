@@ -1,8 +1,8 @@
-const nodemailer = require ('nodemailer');
- const emailer = {
+import { createTransport } from 'nodemailer';
+export  const emailer = {
     send: async (conf, email, subject, text) => {
        try {
-          const transporter = nodemailer.createTransport({
+          const transporter = createTransport({
              service: 'gmail',
              auth: {
                user: conf.mailFrom,
@@ -24,4 +24,3 @@ const nodemailer = require ('nodemailer');
     }
  }
  
- module.exports = emailer;

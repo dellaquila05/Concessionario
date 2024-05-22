@@ -60,7 +60,7 @@ const templateCard = `
 function renderAuto(data) {
   let html = "";
   for (let i = 0; i < data.length; i++) {
-      let rowHtml = templateCard.replace('{nome}', data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}', data[i].descrizione).replace('{src}', data[i].immagini[0]).replace('{idP}', "bottoneP" + i);
+      let rowHtml = templateCard.replace('{nome}', data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}', data[i].descrizione).replace('{src}', data[i].immagini).replace('{idP}', "bottoneP" + i);
       html += rowHtml;
   }
   vetrina.innerHTML = html;

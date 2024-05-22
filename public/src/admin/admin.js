@@ -33,6 +33,8 @@ const buttonNewMarca = document.getElementById("buttonNewMarca");
 const modalBodyPrelazione = document.getElementById("bodyTransazione");
 const modalPrelazione = new bootstrap.Modal("#modalPrelazione", {});
 const buttonModalPrelazione = document.getElementById('buttonModalPrelazione');
+
+
 salva.onclick = async () => {
    let modello = selectmodello.value;
    let carburanteVal = carburante.value;
@@ -44,24 +46,14 @@ salva.onclick = async () => {
    let annoVal = anno.value;
    let disponibilitaVal = disponibilita.value;
    let kmVal = km.value;
-   let files = immagini.files;
-   let images = [];
+   const fileInput = document.getElementById('file-input');
+   const file = fileInput.files;
+   console.log(file.fileList);
 
-   for (let i = 0; i < files.length; i++) {
-       let file = files[i];
-       let reader = new FileReader();
-       reader.onloadend = function () {
-           images.push(reader.result.split(',')[1]); // Push the base64 encoded image string to the array
-       }
-       reader.readAsDataURL(file);
-   }
-
-   // Wait for all the FileReader tasks to complete
-   while (images.length < files.length) {
-       await new Promise(r => setTimeout(r, 100));
-   }
-
-   await postAuto(carburanteVal, descrizioneVal, condizioniVal, cambioVal, allestimentoVal, annoVal, disponibilitaVal, kmVal, prezzoVal, modello, images)
+   const formData = new FormData();
+   formData.append('file', file);
+console.log(formData);
+   await postAuto(carburanteVal, descrizioneVal, condizioniVal, cambioVal, allestimentoVal, annoVal, disponibilitaVal, kmVal, prezzoVal, modello, formData)
        .catch(error => {
            console.error(error);
        });

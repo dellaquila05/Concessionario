@@ -85,7 +85,7 @@
                         <div class="col">
                             <div class="row">
                                 <div class="col">
-                                    <label for="newModello" class="form-label">Nuova Modello</label>
+                                    <label for="newModello" class="form-label">Nuovo Modello</label>
                                     <div class="row">
                                         <div class="col">
                                             <select class="form-select" id="newModelloMarca">
@@ -181,8 +181,13 @@
                 </div>
                 <!-- Immagini -->
                 <div class="mb-3">
-                    <label for="immagini" class="form-label">Carica immagini (max 5)</label>
-                    <input type="file" class="form-control" id="immagini" name="immagini[]" multiple accept="image/*">
+                    <form id="upload-form" onsubmit="return false">
+                        <div class="row">
+                            <div class="col">
+                                <input type="file" id="file-input" class="form-control"/>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="modal-footer">

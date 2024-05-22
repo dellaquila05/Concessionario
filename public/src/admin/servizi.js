@@ -39,7 +39,7 @@ export const postModello = async (modello, marca) => {
     return await response.json();
 }
 
-export const postAuto = async (carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello, images) => {
+export const postAuto = async (carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello, formData) => {
     const response = await fetch('/postAuto', {
         method: 'POST', headers: {
             'Content-Type': 'application/json', 
@@ -54,11 +54,12 @@ export const postAuto = async (carburante, descrizione, condizione, cambio, alle
             km: km,
             prezzo: prezzo,
             idModello: idModello,
-            images: images
+            file: formData        
         }),
     });
-    console.log(await response.json());
-    return await response.json();
+    const data = await response.json();
+    console.log(data);
+    return data;
 }
 
 export const getPrelazione = async () => {

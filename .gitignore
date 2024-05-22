@@ -1,6 +1,5 @@
 conf.json
 configSuperadmin.json
-
 # Logs
 logs
 *.log
@@ -131,3 +130,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+assetsImg/mega.json
