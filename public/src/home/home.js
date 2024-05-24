@@ -41,6 +41,19 @@ async function getAutoList() {
 window.onload = async () => {
   auto = (await getAutoList()).result;
   renderAuto(auto);
+  if (sessionStorage.getItem('username')) {
+    registerli.classList.remove('visible');
+    registerli.classList.add('hidden');
+    loginli.classList.remove('visible');
+    loginli.classList.add('hidden');
+    logout.classList.remove('hidden');
+    logout.classList.add('visible');
+} else {
+    loginli.classList.remove('hidden');
+    loginli.classList.add('visible');
+    registerli.classList.remove('hidden');
+    registerli.classList.add('visible');
+}
 }
 
 const templateCard = `
@@ -81,7 +94,14 @@ function renderAuto(data) {
           if (sessionStorage.getItem('username')) {
             const username = sessionStorage.getItem('username');
             const idMacchina = sessionStorage.getItem('idMacchina');
-            await addPrefe( username, idMacchina);
+            const prefe =  await addPrefe( username, idMacchina);
+            console.log("ciao");
+            console.log(prefe);
+            if(prefe.result){
+                alert("Auto aggiunta nei preferiti.");
+            }else{
+                alert("Auto non aggiunta nei preferiti correttamente. Si consiglia di controllare che gia non lo sia.");
+            }
         } else {
             window.location.href = "./login.html";
         }
@@ -181,19 +201,7 @@ if (sessionStorage.getItem('username')) {
 
 
 
-if (sessionStorage.getItem('username')) {
-    registerli.classList.remove('visible');
-    registerli.classList.add('hidden');
-    loginli.classList.remove('visible');
-    loginli.classList.add('hidden');
-    logout.classList.remove('hidden');
-    logout.classList.add('visible');
-} else {
-    loginli.classList.remove('hidden');
-    loginli.classList.add('visible');
-    registerli.classList.remove('hidden');
-    registerli.classList.add('visible');
-}
+
 logout.onclick = () => {
     window.location.href = "./login.html";
     sessionStorage.removeItem('username');
@@ -246,12 +254,7 @@ resetFiltri.onclick = () => {
 }
 const templateSelect = `<option value="{id}">{marca}</option>`;
 
-    registerli.classList.remove('hidden');
-    registerli.classList.add('visible');
-    loginli.classList.remove('hidden');
-    loginli.classList.add('visible');
-    logout.classList.remove('visible');
-    logout.classList.add('hidden');
+   
 
 const renderModelli = (data) => {
     let html = "";

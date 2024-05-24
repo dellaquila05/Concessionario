@@ -37,7 +37,7 @@ export async function inviaEmailAdmin(oggetto, testo ) {
     }
   }
 
-export  const postPrelazione = async (idUtente,idMacchina) => {
+  export  const postPrelazione = async (idUtente,idMacchina) => {
     const response = await fetch('/postPrelazione', {
         method: 'POST', headers: {
             'Content-Type': 'application/json',

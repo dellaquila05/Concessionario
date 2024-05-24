@@ -43,7 +43,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <link rel="stylesheet" href="../style.css"/>
 </head>
-<body>
+<body >
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
         <a class="navbar-brand" href="#vetrina">
@@ -55,15 +55,14 @@
                     <button type="button" id="buttonModal" class="nav-link">Crea nuova auto</button>
                 </li>
                 <li class="nav-item">
-                    <button type="button" id="buttonModalPrelazione" class="nav-link" href="#">Autorizza transazione
+                    <button type="button" id="buttonModalPrelazione" class="nav-link" href="#">Visuallizza prelazioni
                     </button>
                 </li>
             </ul>
             <div class="d-flex">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="./home.html">Log out</a>
-                    </li>
+                    
+                    <li id="logout" type="button" class="nav-item hidden">Logout</li>
                 </ul>
             </div>
         </div>
@@ -130,17 +129,22 @@
                 <div class="mb-3">
                     <label for="carburante" class="form-label">Carburante</label>
                     <input type="text" class="form-control" id="carburante">
+                    <select class="form-select" id="carburante">
+                        <option value="Benzina">Benzina</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Gpl">Gpl</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
                 </div>
                 <!-- Descrizione -->
                 <div class="mb-3">
                     <label for="descrizione" class="form-label">Descrizione</label>
-                    <textarea class="form-control" id="descrizione"></textarea>
+                    <textarea class="form-control" id="descrizioneAuto"></textarea>
                 </div>
                 <!-- Condizioni -->
                 <div class="mb-3">
                     <label for="condizioni" class="form-label">Condizioni</label>
                     <select class="form-select" id="condizioni">
-                        <option value="condizioni">Condizioni</option>
                         <option value="Usato">Usato</option>
                         <option value="Nuovo">Nuovo</option>
                     </select>
@@ -149,7 +153,6 @@
                 <div class="mb-3">
                     <label for="cambio" class="form-label">Cambio</label>
                     <select class="form-select" id="cambio">
-                        <option value="cambio">Cambio</option>
                         <option value="manuale">Manuale</option>
                         <option value="automatico">Automatico</option>
                     </select>
@@ -202,7 +205,7 @@
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Autorizza transazione</h1>
+                <h1 class="modal-title fs-5">Visualizza Prelazioni</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="bodyTransazione">
@@ -225,7 +228,25 @@
     </div>
 </section>
 <br>
+<div class="modal fade" id="ModalDett" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Dettagli Auto</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="descrizione">
+            </div>
+        </div>
+    </div>
+</div>
+<section class="container">
+    <h2 class="text-center mb-4">Auto in vetrina</h2>
+    <div class="row" id="vetrina">
 
+    </div>
+    <br>
+</section>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="filtriRicercaOffCanvas"
      aria-labelledby="offcanvasWithBothOptionsLabel">
     <div class="offcanvas-header">

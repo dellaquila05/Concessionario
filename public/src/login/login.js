@@ -9,8 +9,9 @@ submit.onclick = async () => {
   const result = await login(user.value,pass.value);
   if (result.loginAdmin) {
     window.location.href = './admin.html'; 
+    sessionStorage.setItem('username', user.value);
   } else if (result.loginUtente) {
-    window.location.href = document.referrer || './home.html'; 
+    window.location.href =  './home.html'; 
     sessionStorage.setItem('username', user.value);
   } else {
     alert('Login fallito. Controlla username e password.');

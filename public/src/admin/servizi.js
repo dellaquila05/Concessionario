@@ -39,27 +39,28 @@ export const postModello = async (modello, marca) => {
     return await response.json();
 }
 
-export const postAuto = async (carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello, formData) => {
+export const postAuto = async (carburante, descrizione, condizione, cambio, allestimento, anno, disponibilita, km, prezzo, idModello, file) => {
+    // Aggiunta dei dati al FormData
+    file.append('carburante', carburante);
+    file.append('descrizione', descrizione);
+    file.append('condizione', condizione);
+    file.append('cambio', cambio);
+    file.append('allestimento', allestimento);
+    file.append('anno', anno);
+    file.append('disponibilita', disponibilita);
+    file.append('km', km);
+    file.append('prezzo', prezzo);
+    file.append('idModello', idModello);
+
+    // Invio della richiesta
     const response = await fetch('/postAuto', {
-        method: 'POST', headers: {
-            'Content-Type': 'application/json', 
-        }, body: JSON.stringify({
-            carburante: carburante,
-            descrizione: descrizione,
-            condizione: condizione,
-            cambio: cambio,
-            allestimento: allestimento,
-            anno: anno,
-            disponibilita: disponibilita,
-            km: km,
-            prezzo: prezzo,
-            idModello: idModello,
-            file: formData        
-        }),
+        method: 'POST',
+        body: file
     });
+
     const data = await response.json();
     console.log(data);
-    return data;
+    return data;
 }
 
 export const getPrelazione = async () => {

@@ -47,6 +47,19 @@ async function getAutoList() {
 window.onload = async () => {
     auto = (await getAutoList()).result;
     renderAuto(auto);
+    if (sessionStorage.getItem('username')) {
+        registerli.classList.remove('visible');
+        registerli.classList.add('hidden');
+        loginli.classList.remove('visible');
+        loginli.classList.add('hidden');
+        logout.classList.remove('hidden');
+        logout.classList.add('visible');
+    } else {
+        loginli.classList.remove('hidden');
+        loginli.classList.add('visible');
+        registerli.classList.remove('hidden');
+        registerli.classList.add('visible');
+    }
 }
 
 const templateCard = `
@@ -83,16 +96,21 @@ function renderAuto(data) {
             console.log(idMacchina);
             sessionStorage.setItem('idMacchina', idMacchina);
         }
-        preferiti.onclick = async ()  => {
-            if (log === false ){
-                window.location.href = './login.html';
-            }else{
-                const idMacchina = data[i].idMacchina;
-                console.log(idMacchina);
-                sessionStorage.setItem('idMacchina', idMacchina);
-                const idUser = sessionStorage.getItem('username');
-                await  addPrefe(idUser, idMacchina);
-            }
+        preferiti.onclick = async () => {
+            if (sessionStorage.getItem('username')) {
+              const username = sessionStorage.getItem('username');
+              const idMacchina = sessionStorage.getItem('idMacchina');
+              const prefe =  await addPrefe( username, idMacchina);
+              console.log("ciao");
+              console.log(prefe);
+              if(prefe.result){
+                  alert("Auto aggiunta nei preferiti.");
+              }else{
+                  alert("Auto non aggiunta nei preferiti correttamente. Si consiglia di controllo che gia non lo sia.");
+              }
+          } else {
+              window.location.href = "./login.html";
+          }
         }
     }
 }
@@ -185,47 +203,30 @@ if (sessionStorage.getItem('username')) {
     console.log(idUser);
 }
 
-async function addPrefe(user, macchina) {
-
-       await fetch("/postPreferiti", {
+ async function addPrefe(user, macchina) {  
+    try {
+        const response = await fetch("/postPreferiti", {
             method: "POST",
-
-            headers: {"content-type": "Application/json"},
-
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-
-                idUser: user, idMacchina: macchina
-
+                idUtente: user,
+                idMacchina: macchina
             })
-
-        })
-
-}
-
-
-function reinderizza() {
-
-    if (log === false) {
-
-        window.location.href = "./login.html";
-
+        });
+  
+        let data = await response.json();
+        console.log(data);
+  
+        return data;
+  
+    } catch (error) {
+        console.error('Si è verificato un errore:', error);
     }
+  }
 
-}
 
-if (sessionStorage.getItem('username')) {
-    registerli.classList.remove('visible');
-    registerli.classList.add('hidden');
-    loginli.classList.remove('visible');
-    loginli.classList.add('hidden');
-    logout.classList.remove('hidden');
-    logout.classList.add('visible');
-} else {
-    loginli.classList.remove('hidden');
-    loginli.classList.add('visible');
-    registerli.classList.remove('hidden');
-    registerli.classList.add('visible');
-}
+
+
 logout.onclick = () => {
     window.location.href = "./login.html";
     sessionStorage.removeItem('username');
