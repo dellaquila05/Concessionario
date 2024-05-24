@@ -1,13 +1,15 @@
 
 import {
-   postModello,
-   postAuto,
-   postMarca,
-   getMarche,
-   getModello,
-   getPrelazione,
-   accettaPrelazione,
-   rifiutaPrelazione
+    postModello,
+    postAuto,
+    postMarca,
+    getMarche,
+    getModello,
+    getPrelazione,
+    accettaPrelazione,
+    rifiutaPrelazione,
+    rimAuto,
+    getAutoList
 } from "./servizi.js";
 
 const modal = new bootstrap.Modal("#Modal", {});
@@ -40,6 +42,15 @@ const modal1 = new bootstrap.Modal("#ModalDett", {});
 const descrizione1 = document.getElementById("descrizione");
 let auto = [];
 
+function formatDatestamp(datestamp) {
+    const date = new Date(datestamp);
+    const day = String(date.getDate()).padStart(2,'0');
+    const month = String(date.getMonth()+1).padStart(2,'0');
+    const year = date.getFullYear();
+    return ''+day+'/'+month+'/'+year;
+
+}
+
 const templateCard = `
 <div class="col-md-4 mt-3">
 <div class="card">
@@ -48,30 +59,48 @@ const templateCard = `
         <h5 class="card-title">{nome}</h5>
         <p class="card-text">{descrizione}</p>
         <a id="{idD}" class="btn btn-primary">Dettagli</a>
+        <button id="{idR}" class="btn btn-danger">Rimuovi auto</button>
+
     </div>
 </div>
 </div>
 `;
 
 function renderAuto(data) {
-  let html = "";
-  for (let i = 0; i < data.length; i++) {
-      let rowHtml = templateCard.replace('{nome}', data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}', data[i].descrizione).replace('{src}', data[i].immagini);
-      html += rowHtml;
-  }
-  vetrina.innerHTML = html;
-  let dettagli;
-  for (let i = 0; i < data.length; i++) {
-      dettagli = document.getElementById("bottoneD" + i);
-      dettagli.onclick = () => {
-          modal1.show();
-          renderModal(data[i]);
-          renderAuto(data);
-          const idMacchina = data[i].idMacchina;
-          console.log(idMacchina);
-          sessionStorage.setItem('idMacchina', idMacchina);
-      }      
-  }
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateCard.replace('{nome}', data[i].marca + " " + data[i].modello).replace('{idD}', "bottoneD" + i).replace('{descrizione}', data[i].descrizione).replace('{src}', data[i].immagini).replace('{idR}', "bottoneR" + i);
+        html += rowHtml;
+    }
+    vetrina.innerHTML = html;
+    let dettagli;
+    let rimuovi;
+    for (let i = 0; i < data.length; i++) {
+        dettagli = document.getElementById("bottoneD" + i);
+        rimuovi = document.getElementById("bottoneR" + i);
+
+        dettagli.onclick = () => {
+            modal1.show();
+            renderModal(data[i]);
+            renderAuto(data);
+            const idMacchina = data[i].idMacchina;
+            console.log(idMacchina);
+            sessionStorage.setItem('idMacchina', idMacchina);
+        }
+        rimuovi.onclick = async () => {
+            const idMacchina = data[i].idMacchina;
+            const rim = await rimAuto(idMacchina);
+            if (rim.result) {
+                alert("Auto eliminata con successo.");
+                auto = (await getAutoList()).result;
+                renderAuto(auto);
+                location.reload();
+            } else {
+                alert("Si è verificato un errore nell'eliminazione  dell'auto .");
+            }
+        }
+
+    }
 }
 
 const templateModal = `
@@ -115,13 +144,14 @@ const templateModal = `
 function renderModal(data) {
     console.log(data);
     let html = "";
+    let annata = formatDatestamp(data.anno);
     let rowHtml = templateModal.replace('{nome}', data.marca + " " + data.modello)
         .replace('{prezzo}', data.prezzo)
         .replace('{disponibilita}', data.disponibilità)
         .replace('{condizione}', data.condizione)
         .replace('{km}', data.KM)
         .replace('{allestimento}', data.allestimento)
-        .replace('{anno}', data.anno)
+        .replace('{anno}', annata)
         .replace('{cambio}', data.cambio)
         .replace('{carburante}', data.carburante)
         .replace('{descrizione}', data.descrizione);
@@ -129,32 +159,29 @@ function renderModal(data) {
     descrizione1.innerHTML = html;
 }
 
-async function getAutoList() {
-    const response = await fetch("/macchina")
-    return response.json();
-  }
+
 
 window.onload = async () => {
-       if (sessionStorage.getItem('username')) {
+    if (sessionStorage.getItem('username')) {
         auto = (await getAutoList()).result;
         renderAuto(auto);
         logout.classList.remove('hidden');
         logout.classList.add('visible');
-      }else{
+    } else {
         window.location.href = "./login.html";
 
-      
-      }
-  };
+
+    }
+};
 
 
-  
-  logout.onclick = () => {
-  
+
+logout.onclick = () => {
+
     window.location.href = "./login.html";
     sessionStorage.removeItem('username');
-  
-  }
+
+}
 
 
 salva.onclick = async () => {
@@ -165,12 +192,13 @@ salva.onclick = async () => {
     let prezzoVal = prezzo.value;
     let cambioVal = cambio.value;
     let allestimentoVal = allestimento.value;
-    let annoVal = anno.value;
+    let annoVal = anno.value;   //da formattare
+    let data = formatDatestamp(annoVal);
     let disponibilitaVal = disponibilita.value;
     let kmVal = km.value;
     const fileInput = document.getElementById('file-input');
 
-// Verifica se un file è stato caricato
+    // Verifica se un file è stato caricato
     if (fileInput.files.length === 0) {
         console.error("Nessun file caricato");
         return;
@@ -181,46 +209,49 @@ salva.onclick = async () => {
     const formData = new FormData();
     formData.append('file', file); // Aggiungi il file al formData
 
-    await postAuto(carburanteVal, descrizioneVal, condizioniVal, cambioVal, allestimentoVal, annoVal, disponibilitaVal, kmVal, prezzoVal, modello, formData)
-        .catch(error => {
-            console.error(error);
-        });
+    const dato = await postAuto(carburanteVal, descrizioneVal, condizioniVal, cambioVal, allestimentoVal, data, disponibilitaVal, kmVal, prezzoVal, modello, formData);
+        if(dato.stato){
+            alert("Auto inserita on successo.");
+            location.reload();
+        }else{
+            alert("Si è verificato un errore nell'inserimento dell'auto.");
+        }
 }
 
 buttonNewMarca.onclick = async () => {
-   let marca = newMarca.value;
-   if (marca !== "") {
-       await postMarca(marca).catch(error => {
-           console.error(error);
-       });
-       newMarca.value = "";
-       renderMarca((await getMarche()).result);
-   } else {
-       alert("è richiesto compilare tutti i campi.");
-   }
+    let marca = newMarca.value;
+    if (marca !== "") {
+        await postMarca(marca).catch(error => {
+            console.error(error);
+        });
+        newMarca.value = "";
+        renderMarca((await getMarche()).result);
+    } else {
+        alert("è richiesto compilare tutti i campi.");
+    }
 }
 buttonNewModello.onclick = async () => {
-   let modello = newModello.value;
-   let marca = selectNewModelloMarca.value;
-   console.log(marca);
-   console.log(modello);
-   if (modello !== "" && marca !== "modello") {
-       await postModello(modello, marca).catch(error => {
-           console.error(error);
-       });
-       newModello.value = "";
-       renderModello((await getModello()).result);
-   } else {
-       alert("è richiesto compilare tutti i campi.");
-   }
+    let modello = newModello.value;
+    let marca = selectNewModelloMarca.value;
+    console.log(marca);
+    console.log(modello);
+    if (modello !== "" && marca !== "modello") {
+        await postModello(modello, marca).catch(error => {
+            console.error(error);
+        });
+        newModello.value = "";
+        renderModello((await getModello()).result);
+    } else {
+        alert("è richiesto compilare tutti i campi.");
+    }
 }
 buttModal.onclick = async () => {
-   const marche = (await getMarche());
-   console.log(marche.result);
-   renderMarca(marche.result);
-   const modelli = (await getModello());
-   renderModello(modelli.result);
-   modal.show();
+    const marche = (await getMarche());
+    console.log(marche.result);
+    renderMarca(marche.result);
+    const modelli = (await getModello());
+    renderModello(modelli.result);
+    modal.show();
 }
 
 const templateMarca = `<option value="{id}">{marca}</option>`;
@@ -245,63 +276,63 @@ const prelazioniModificate = `<div class="row justify-content-end">
 
 
 buttonModalPrelazione.onclick = async () => {
-   const prelazioni = (await getPrelazione()).result;
-   console.log(prelazioni);
-   renderPrelazioni(prelazioni);
-   modalPrelazione.show();
+    const prelazioni = (await getPrelazione()).result;
+    console.log(prelazioni);
+    renderPrelazioni(prelazioni);
+    modalPrelazione.show();
 }
 
 function renderMarca(data) {
 
-   let html = `"<option value="marca">marca</option>"`;
+    let html = `"<option value="marca">marca</option>"`;
 
-   for (let i = 0; i < data.length; i++) {
-       let rowHtml = templateMarca.replace('{id}', data[i].idMarca).replace('{marca}', data[i].nome);
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateMarca.replace('{id}', data[i].idMarca).replace('{marca}', data[i].nome);
 
-       html += rowHtml;
-   }
-   console.log(html);
-   selectNewModelloMarca.innerHTML = html;
+        html += rowHtml;
+    }
+    console.log(html);
+    selectNewModelloMarca.innerHTML = html;
 
 }
 
 const renderModello = (data) => {
-   let html = `"<option value="modello">modello</option>"`;
-   for (let i = 0; i < data.length; i++) {
-       let rowHtml = templateModello.replace('{id}', data[i].idModello).replace('{modello}', data[i].marca + " " + data[i].nome);
-       html += rowHtml;
-   }
-   selectmodello.innerHTML = html;
+    let html = `"<option value="modello">modello</option>"`;
+    for (let i = 0; i < data.length; i++) {
+        let rowHtml = templateModello.replace('{id}', data[i].idModello).replace('{modello}', data[i].marca + " " + data[i].nome);
+        html += rowHtml;
+    }
+    selectmodello.innerHTML = html;
 }
 
 const renderPrelazioni = (data) => {
-   let html = "";
-   for (let i = 0; i < data.length; i++) {
-       if(data[i].stato === 'attesa'){
-       let rowHtml = templatePrelazione.replace('%ID', data[i].id).replace('%ID', data[i].id).replace('%NOME', data[i].username + " " + data[i].marca + " - " + data[i].modello);
-       html += rowHtml;
-    }else{
-        let rowHtml = prelazioniModificate.replace('%NOME', data[i].username + " " + data[i].marca + " - " + data[i].modello).replace('%STATO', data[i].stato);
-       html += rowHtml;
-    }
-   }
-   modalBodyPrelazione.innerHTML = html;
-   data.forEach((element) => {
-    const accettaBtn = document.getElementById(`Accetta_${element.id}`);
-    const rifiutaBtn = document.getElementById(`Rifiuta_${element.id}`);
-    
-    if (accettaBtn) {
-        accettaBtn.onclick = async () => {
-            await accettaPrelazione(element.id);
-            renderPrelazioni((await getPrelazione()).result);
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].stato === 'attesa') {
+            let rowHtml = templatePrelazione.replace('%ID', data[i].id).replace('%ID', data[i].id).replace('%NOME', data[i].username + " " + data[i].marca + " - " + data[i].modello);
+            html += rowHtml;
+        } else {
+            let rowHtml = prelazioniModificate.replace('%NOME', data[i].username + " " + data[i].marca + " - " + data[i].modello).replace('%STATO', data[i].stato);
+            html += rowHtml;
         }
     }
+    modalBodyPrelazione.innerHTML = html;
+    data.forEach((element) => {
+        const accettaBtn = document.getElementById(`Accetta_${element.id}`);
+        const rifiutaBtn = document.getElementById(`Rifiuta_${element.id}`);
 
-    if (rifiutaBtn) {
-        rifiutaBtn.onclick = async () => {
-            await rifiutaPrelazione(element.id);
-            renderPrelazioni((await getPrelazione()).result);
+        if (accettaBtn) {
+            accettaBtn.onclick = async () => {
+                await accettaPrelazione(element.id);
+                renderPrelazioni((await getPrelazione()).result);
+            }
         }
-    }
-});
+
+        if (rifiutaBtn) {
+            rifiutaBtn.onclick = async () => {
+                await rifiutaPrelazione(element.id);
+                renderPrelazioni((await getPrelazione()).result);
+            }
+        }
+    });
 }

@@ -46,7 +46,7 @@ if (sessionStorage.getItem('username')) {
   
   logout.onclick = () => {
   
-    window.location.href = "./login.html";
+    window.location.href = "./home.html";
     sessionStorage.removeItem('username');
     registerli.classList.remove('hidden');
     registerli.classList.add('visible');

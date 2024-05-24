@@ -46,7 +46,8 @@ export  const postPrelazione = async (idUtente,idMacchina) => {
             idMacchina: idMacchina
         }),
     });
-    return await response.json();
+    const data = await response.json();
+    return data;
 }
 
 export async function addPrefe(user, macchina) {  

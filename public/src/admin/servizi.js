@@ -95,3 +95,23 @@ export const rifiutaPrelazione = async (id) => {
     });
     return await response.json();
 }
+
+export async function rimAuto(idMacchina) {
+    try {
+      const response = await fetch(`/deleteAuto/${idMacchina}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      const result = await response.json();
+      return result ;
+    } catch (error) {
+      console.error('Errore durante la richiesta:', error);
+    }
+  }
+  export async function getAutoList() {
+    const response = await fetch("/macchina")
+    return response.json();
+  }

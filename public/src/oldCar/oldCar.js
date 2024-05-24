@@ -152,17 +152,25 @@ const templateModal = `
     </div>    
 </div>
 `;
+function formatDatestamp(datestamp) {
+    const date = new Date(datestamp);
+    const day = String(date.getDate()).padStart(2,'0');
+    const month = String(date.getMonth()+1).padStart(2,'0');
+    const year = date.getFullYear();
+    return ''+day+'/'+month+'/'+year;
 
+}
 function renderModal(data) {
     console.log(data);
     let html = "";
+    let annata = formatDatestamp(data.anno);
     let rowHtml = templateModal.replace('{nome}', data.marca + " " + data.modello)
         .replace('{prezzo}', data.prezzo)
         .replace('{disponibilita}', data.disponibilità)
         .replace('{condizione}', data.condizione)
         .replace('{km}', data.KM)
         .replace('{allestimento}', data.allestimento)
-        .replace('{anno}', data.anno)
+        .replace('{anno}', annata)
         .replace('{cambio}', data.cambio)
         .replace('{carburante}', data.carburante)
         .replace('{descrizione}', data.descrizione);
@@ -228,7 +236,7 @@ if (sessionStorage.getItem('username')) {
 
 
 logout.onclick = () => {
-    window.location.href = "./login.html";
+    window.location.href = "./home.html";
     sessionStorage.removeItem('username');
 }
 
@@ -313,13 +321,19 @@ prelaziona.onclick = async () => {
     if (sessionStorage.getItem('username')) {
         const username = sessionStorage.getItem('username');
         const idMacchina = sessionStorage.getItem('idMacchina');
-        const prelazione = await postPrelazione(idMacchina, username);
-        console.log(prelazione);
-        alert("Prelazione effettuata con successo");
+        const prela = await postPrelazione( username, idMacchina);
+        if(prela.result){
+          alert("Effettuato con successo.");
+          location.reload();
+        }else{
+          alert("Si è verificato un errore nella preazione.");
+  
+        }
+        
     } else {
         window.location.href = "./login.html";
     }
-}
+  }
 
 
 const renderModelli = (data) => {

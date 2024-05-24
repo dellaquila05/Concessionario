@@ -54,7 +54,7 @@ if (sessionStorage.getItem('username')) {
   
   logout.onclick = () => {
   
-    window.location.href = "./login.html";
+    window.location.href = "./home.html";
     sessionStorage.removeItem('username');
   
   }

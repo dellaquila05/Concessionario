@@ -110,46 +110,31 @@ app.post("/registrazione", async function (req, res) {
     throw errore;
   }
 });
-
+// Metodo per eliminare un preferito
+app.delete("/deletePreferiti/:idUtente/:idMacchina", async (req, res) => {
+  const  idUtente = req.params.idUtente;
+  const idMacchina  = req.params.idMacchina;
+  const sql = 'DELETE FROM preferiti WHERE idMacchina = ? AND idUtente = ?';
+  try {
+    const [result] = await conn.promise().query(sql, [idMacchina, idUtente]);
+    res.json({ result: true });
+  } catch (err) {
+    res.json({ result: false });
+  }
+});
 // Metodo per eliminare un'auto
-app.delete("/deleteAuto", async (req, res) => {
-  const requestBody = req.body;
+app.delete("/deleteAuto/:idMacchina", async (req, res) => {
+  const idMacchina  = req.params.idMacchina;
   const sql = "DELETE FROM macchina  WHERE idMacchina = ?";
   try {
-    const [result] = await conn.promise().query(sql, [requestBody.idMacchina]);
-    res.json({ "result": true });
+    const [result] = await conn.promise().query(sql, [idMacchina]);
+    res.json({ result: true });
   } catch (err) {
-    res.json({ "result": false });
+    res.json({ result: false });
   }
-  conn.close();
 });
 
-// Metodo per eliminare un modello
-app.delete("/deleteModello", async (req, res) => {
-  const requestBody = req.body;
-  const sql = "DELETE FROM modello  WHERE idModello = ?";
-  try {
-    const [result] = await conn.promise().query(sql, [requestBody.idModello]);
-    res.json({ "result": true });
-  } catch (err) {
-    res.json({ "result": false });
-  }
-  conn.close();
-});
 
-// Metodo per eliminare una marca
-app.delete("/deleteMarca", async (req, res) => {
-  const requestBody = req.body;
-  const sql = "DELETE FROM marca  WHERE idMarca = ?";
-
-  try {
-    const [result] = await conn.promise().query(sql, [requestBody.idMarca]);
-    res.json({ "result": true });
-  } catch (err) {
-    res.json({ "result": false });
-  }
-  conn.close();
-});
 
 // Metodo per accettare le prelazioni
 app.post("/rifiutaPrelazione", async (req, res) => {
@@ -163,44 +148,19 @@ app.post("/rifiutaPrelazione", async (req, res) => {
   }
 });
 
-
-
-
-
-
-// Metodo per eliminare un utente
-app.delete("/deleteUtente", async (req, res) => {
-  const requestBody = req.body;
-  const username = requestBody.username;
-
-  const sql = 'DELETE FROM utente WHERE username = ?';
-  try {
-    const [result] = await conn.promise().query(sql, [username]);
-
-    res.json({ "result": true });
-  } catch (err) {
-    res.json({ "result": false });
-  }
-  conn.close();
-});
-
-
-
 // Metodo per creare una nuova prelazione
 app.post('/postPrelazione', async (req, res) => {
   let idUtente = req.body.idUtente;
   let stato = "attesa";
   let idMacchina = req.body.idMacchina;
-  let oggi = new Date();
-  let giorno = oggi.getDate();
-  let mese = oggi.getMonth() + 1;
-  let anno = oggi.getFullYear();
-  const data = anno + '-' + mese + '-' + giorno; const sql = 'INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);';
+  const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0];
+  const sql = 'INSERT INTO prelazione(idUtente,idMacchina,data,stato) VALUES(?,?,?,?);';
   try {
-    const [result] = await conn.promise().query(sql, [idUtente, idMacchina, data, stato]);
-    res.send({ "result": true });
+    const [result] = await conn.promise().query(sql, [idUtente, idMacchina, formattedDate, stato]);
+    res.send({ result: true });
   } catch (err) {
-    res.send({ "result": false });
+    res.send({ result: false });
   }
 });
 
@@ -294,13 +254,12 @@ app.post('/postAuto', upload.single('file'), async (req, res) => {
     console.log("link:" + link);
     let sql3 = "INSERT INTO immaginiTpsi(path, idMacchina) VALUES(?, ?)";
     const [risultati] = await conn.promise().query(sql3, [link, idMacchina]);
-    res.status(200).json({ "Stato": true, "Result": fileName, "link": link }); // Restituisci solo il nome del file e il link
+    res.status(200).json({ stato: true, "Result": fileName, "link": link }); // Restituisci solo il nome del file e il link
   } catch (err) {
     // Errore durante l'esecuzione
-    res.send({ "Stato": false, message: err.message });
+    res.send({ stato: false, message: err.message });
   }
   // Chiusura della connessione
-  conn.close();
 });
 
 
@@ -404,18 +363,7 @@ app.post("/accettaPrela", async (req, res) => {
 });
 
 
-// Metodo per eliminare un preferito
-app.delete("/deletePreferiti/:idUtente/:idMacchina", async (req, res) => {
-  const  idUtente = req.params.idUtente;
-  const idMacchina  = req.params.idMacchina;
-  const sql = 'DELETE FROM preferiti WHERE idMacchina = ? AND idUtente = ?';
-  try {
-    const [result] = await conn.promise().query(sql, [idMacchina, idUtente]);
-    res.json({ result: true });
-  } catch (err) {
-    res.json({ result: false });
-  }
-});
+
 
 // Funzione per convertire uno stream in un buffer
 function streamToBuffer(stream) {
