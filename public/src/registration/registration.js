@@ -33,3 +33,39 @@ buttonRegister.onclick = async () => {
     }
 };
 
+// Seleziona l'elemento span e l'input della password
+const spanElement = document.getElementById("change");
+const spanElement2 = document.getElementById("change2");
+
+// Aggiungi un evento di click all'elemento span
+spanElement.addEventListener("click", () => {
+  console.log("click");
+  // Controlla il tipo dell'input della password
+  if (password.type === "password") {
+    // Cambia il tipo a 'text' per mostrare la password
+    password.type = "text";
+    // Cambia il testo dello span a 'visibility_off'
+    spanElement.textContent = "visibility_off";
+  } else {
+    // Cambia il tipo a 'password' per nascondere la password
+    password.type = "password";
+    // Cambia il testo dello span a 'visibility'
+    spanElement.textContent = "visibility";
+  }
+});
+// Aggiungi un evento di click all'elemento span
+spanElement2.addEventListener("click", () => {
+    console.log("click");
+    // Controlla il tipo dell'input della password
+    if (passwordConfirm.type === "password") {
+      // Cambia il tipo a 'text' per mostrare la password
+      passwordConfirm.type = "text";
+      // Cambia il testo dello span a 'visibility_off'
+      spanElement2.textContent = "visibility_off";
+    } else {
+      // Cambia il tipo a 'password' per nascondere la password
+      passwordConfirm.type = "password";
+      // Cambia il testo dello span a 'visibility'
+      spanElement2.textContent = "visibility";
+    }
+  });
